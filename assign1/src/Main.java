@@ -6,6 +6,8 @@ public class Main {
         int val = 6;
         if (size < val) val = size;
 
+        System.out.println("\n\nMatrix (partially):");
+
         for (int i = 0; i < val; i++) {
             System.out.print('|');
             for (int j = 0; j < val; j++) {
@@ -17,145 +19,130 @@ public class Main {
         }
     }
 
-    // Normal Multiplication
-    public static int[][] OnMult(int n) {
-
-        int[][] matrix1 = new int[n][n];
-        int[][] matrix2 = new int[n][n];
-        int[][] res = new int[n][n];
-
-
+    public static void initializeMatrixes(int[][] m1, int[][] m2, int[][] res, int n) {
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                matrix1[i][j] = 1;
-                matrix2[i][j] = i;
+                m1[i][j] = 1;
+                m2[i][j] = i + 1;
                 res[i][j] = 0;
             }
         }
+    }
+
+    // Normal Multiplication
+    public static void OnMult(int[][] m1, int[][] m2, int[][] res, int n) {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 for (int k = 0; k < n; k++) {
-                    res[i][j] += matrix1[i][k] * matrix2[k][j];
+                    res[i][j] += m1[i][k] * m2[k][j];
                 }
             }
         }
 
-        return res;
     }
 
-
     // Line Multiplication
-    public static int[][] OnMultLine(int n) {
-
-        int[][] matrix1 = new int[n][n];
-        int[][] matrix2 = new int[n][n];
-        int[][] res = new int[n][n];
-
-
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                matrix1[i][j] = 1;
-                matrix2[i][j] = i;
-                res[i][j] = 0;
-            }
-        }
+    public static void OnMultLine(int[][] m1, int[][] m2, int[][] res, int n) {
 
         for (int i = 0; i < n; i++) {
             for (int k = 0; k < n; k++) {
                 for (int j = 0; j < n; j++) {
-                    res[i][j] += matrix1[i][k] * matrix2[k][j];
+                    res[i][j] += m1[i][k] * m2[k][j];
                 }
             }
         }
 
-        return res;
     }
 
-    public static int[][] OnMultBlock(int mA, int blockSize){
-        int[][] matrix1 = new int[mA][mA];
-        int[][] matrix2 = new int[mA][mA];
-        int[][] res = new int[mA][mA];
+    // Block Multiplication
+    public static void OnMultBlock(int[][] m1, int[][] m2, int[][] res, int n, int blockSize) {
 
-        if( mA % blockSize != 0 || mA % blockSize != 0){
+        if( n % blockSize != 0 || n % blockSize != 0){
             System.out.println("Error");
 
         }    
-
-        for (int i = 0; i < mA; i++) {
-            for (int j = 0; j < mA; j++) {
-                matrix1[i][j] = 1;
-                matrix2[i][j] = i;
-                res[i][j] = 0;
-            }
-        }
         
         
-        for(int i0 = 0; i0 < mA; i0 += blockSize ){
-            for(int i1 = 0; i1 < mA; i1 += blockSize){
-                for(int i2 = 0; i2 < mA; i2 += blockSize){
+        for(int i0 = 0; i0 < n; i0 += blockSize ){
+            for(int i1 = 0; i1 < n; i1 += blockSize){
+                for(int i2 = 0; i2 < n; i2 += blockSize){
                     for(int i = i0; i < i0 + blockSize; i++){
                         for(int j = i1; j < i1 + blockSize; j++){
                             for(int k = i2; k < i2 + blockSize; k++){
-                                res[i][j] += matrix1[i][k] * matrix2[k][j]; 
+                                res[i][j] += m1[i][k] * m2[k][j]; 
                             }
                         }
                     }
                 }
             }
         }    
-        
-        return res;
-        
+       
     }
 
     public static void main(String[] args) {
-        
-        Scanner input = new Scanner(System.in);
-        long start = 0, stop = 0;
-        int[][] res;
-        int option = 0;
+
         while (true) {
-            System.out.println("Choose method:\n1. Multiplication\n2. Line Multiplication\n3. Block Multiplication");
-            option = input.nextInt();
-            if (option == 1 || option == 2 || option == 3) break;
-            System.out.println("Invalid option (choose between 1 2 or 3)");
+
+            Scanner input = new Scanner(System.in);
+            long start = 0, stop = 0;
+            int option = 0;
+
+            // User input
+            while (true) {
+                System.out.println("\n\nChoose method:\n1. Multiplication\n2. Line Multiplication\n3. Block Multiplication\n4. Exit");
+                option = input.nextInt();
+                if (option == 1 || option == 2 || option == 3 || option == 4) break;
+                System.out.println("\nInvalid option (choose between 1 2 or 3)");
+            }
+
+            if (option == 4) {
+                input.close();
+                return;
+            }
+
+            System.out.print("Matrix dimensions:");
+            int size = input.nextInt();
+
+
+            // Matrix initialization
+            int[][] m1 = new int[size][size];
+            int[][] m2 = new int[size][size];
+            int[][] res = new int[size][size];
+            Main.initializeMatrixes(m1, m2, res, size);
+
+            // Calculations
+            switch (option) {
+                case 1: {
+                    start = System.nanoTime();
+                    Main.OnMult(m1, m2, res, size);
+                    stop = System.nanoTime();
+                    break;
+                }
+                case 2: {
+                    start = System.nanoTime();
+                    Main.OnMultLine(m1, m2, res, size);
+                    stop = System.nanoTime();
+                    break;
+                }
+                case 3: {
+                    System.out.print("\nBlock size:");
+                    int noBlocks = input.nextInt();
+                    start = System.nanoTime();
+                    Main.OnMultBlock(m1, m2, res, size, noBlocks);
+                    stop = System.nanoTime();
+                    break;
+                }
+                default: {
+                    System.out.println("\nInternal error: Invalid option");
+                    return;
+                }
+            }
+
+            // Results
+            Main.partiallyPrintMatrix(res, size);
+            System.out.println("Time elapsed in nanoseconds:" + (stop - start));
+            
         }
-        System.out.println("Matrix dimensions:");
-        int size = input.nextInt();
-
-
-        switch (option) {
-            case 1: {
-                start = System.nanoTime();
-                res = Main.OnMult(size);
-                stop = System.nanoTime();
-                Main.partiallyPrintMatrix(res, size);
-                break;
-            }
-            case 2: {
-                start = System.nanoTime();
-                res = Main.OnMultLine(size);
-                stop = System.nanoTime();
-                Main.partiallyPrintMatrix(res, size);
-                break;
-            }
-            case 3: {
-                start = System.nanoTime();
-                res = Main.OnMultBlock(size, 2); // TODO: correct
-                stop = System.nanoTime();
-                Main.partiallyPrintMatrix(res, size);
-                break;
-            }
-            default: {
-                System.out.println("Invalid option");
-            }
-        }
-
-        
-        System.out.println("Time elapsed:" + (stop - start));
-
-        
-        input.close();
     }
 }
