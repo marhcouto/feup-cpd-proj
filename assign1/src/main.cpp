@@ -79,7 +79,60 @@ void OnMultLine(int m_ar, int m_br)
 
     double *pha, *phb, *phc;
 
+    pha = (double *)malloc((m_ar * m_ar) * sizeof(double));
+    phb = (double *)malloc((m_ar * m_ar) * sizeof(double));
+    phc = (double *)malloc((m_ar * m_ar) * sizeof(double));
 
+    for(i=0; i<m_ar; i++)
+        for(j=0; j<m_ar; j++)
+            pha[i*m_ar + j] = (double)1.0;
+            phc[i*m_ar + j] = (double) 0.0;
+
+    for(i=0; i<m_br; i++)
+        for(j=0; j<m_br; j++)
+            phb[i*m_br + j] = (double)(i+1);
+
+    Time1 = clock();
+
+    for (i=0; i < m_ar; i++) {
+        for(j=0; j < m_br; j++) {
+            for(k=0; k < m_br; k++) {
+                phc[i*m_ar + k] += pha[i*m_ar + j] * phb[j*m_ar + k];
+            }
+        }
+    }
+
+    Time2 = clock();
+    sprintf(st, "Time: %3.3f seconds\n", (double)(Time2 - Time1) / CLOCKS_PER_SEC);
+    cout << st;
+
+    // display 10 elements of the result matrix tto verify correctness
+    cout << "Result matrix: " << endl;
+    for(i=0; i<1; i++)
+    {	for(j=0; j<min(10,m_br); j++)
+            cout << phc[j] << " ";
+    }
+    cout << endl;
+
+    free(pha);
+    free(phb);
+    free(phc);
+}
+
+// add code here for block x block matriz multiplication
+void OnMultBlock(int m_ar, int m_br, int bkSize)
+{
+    if (m_ar % bkSize != 0 || m_br % bkSize != 0) {
+        return;
+    }
+
+    SYSTEMTIME Time1, Time2;
+
+    char st[100];
+    double temp;
+    int i0, j0, k0, i, j, k, numberOfBlocks;
+
+    double *pha, *phb, *phc;
 
     pha = (double *)malloc((m_ar * m_ar) * sizeof(double));
     phb = (double *)malloc((m_ar * m_ar) * sizeof(double));
@@ -88,24 +141,45 @@ void OnMultLine(int m_ar, int m_br)
     for(i=0; i<m_ar; i++)
         for(j=0; j<m_ar; j++)
             pha[i*m_ar + j] = (double)1.0;
+    phc[i*m_ar + j] = (double) 0.0;
 
     for(i=0; i<m_br; i++)
         for(j=0; j<m_br; j++)
             phb[i*m_br + j] = (double)(i+1);
 
-    for (i=0; i < m_ar; i++) {
-        for(j=0; j < m_br; j++) {
-            for(k=0; k < )
+    numberOfBlocks = (m_ar / bkSize);
+
+    Time1 = clock();
+
+    for (i0 = 0; i0 < m_ar; i0 += bkSize) {
+        for (j0 = 0; j0 < m_ar; j0 += bkSize) {
+            for(k0 = 0; k0 < m_ar; k0 += bkSize) {
+                for(i = i0; i < i0 + bkSize; i++) {
+                    for(j = j0; j < j0 + bkSize; j++){
+                        for(k = k0; k < k0 + bkSize; k++){
+                            phc[i*m_ar + k] += pha[i*m_ar + j] * phb[j*m_ar + k];
+                        }
+                    }
+                }
+            }
         }
     }
 
-}
+    Time2 = clock();
+    sprintf(st, "Time: %3.3f seconds\n", (double)(Time2 - Time1) / CLOCKS_PER_SEC);
+    cout << st;
 
-// add code here for block x block matriz multiplication
-void OnMultBlock(int m_ar, int m_br, int bkSize)
-{
+    // display 10 elements of the result matrix tto verify correctness
+    cout << "Result matrix: " << endl;
+    for(i=0; i<1; i++)
+    {	for(j=0; j<min(10,m_br); j++)
+            cout << phc[j] << " ";
+    }
+    cout << endl;
 
-
+    free(pha);
+    free(phb);
+    free(phc);
 }
 
 
