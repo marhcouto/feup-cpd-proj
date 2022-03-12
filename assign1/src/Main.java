@@ -138,7 +138,7 @@ public class Main {
             // Results
             Main.partiallyPrintMatrix(res, size);
 
-            float time = (float)(stop - start) / 1000000;
+            float time = (float)(stop - start) / 1000000000;
             System.out.println("Time:" + (time) + "seconds");
             
         }
