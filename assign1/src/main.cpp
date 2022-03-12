@@ -9,7 +9,7 @@ using namespace std;
 #define SYSTEMTIME clock_t
 
 
-void OnMult(int m_ar, int m_br)
+void OnMult(int m_ar, int m_br, double* timeRes = NULL)
 {
     SYSTEMTIME Time1, Time2;
 
@@ -65,11 +65,13 @@ void OnMult(int m_ar, int m_br)
     free(phb);
     free(phc);
 
-
+    if (timeRes != NULL) {
+        *timeRes = (double)(Time2 - Time1);
+    }
 }
 
 // add code here for line x line matriz multiplication
-void OnMultLine(int m_ar, int m_br)
+void OnMultLine(int m_ar, int m_br, double* timeRes = NULL)
 {
     SYSTEMTIME Time1, Time2;
 
@@ -117,15 +119,19 @@ void OnMultLine(int m_ar, int m_br)
     free(pha);
     free(phb);
     free(phc);
+
+    if (timeRes != NULL) {
+        *timeRes = (double)(Time2 - Time1);
+    }
 }
 
 // add code here for block x block matriz multiplication
-void OnMultBlock(int m_ar, int m_br, int bkSize)
+void OnMultBlock(int m_ar, int m_br, int bkSize, double* timeRes = NULL)
 {
     if (m_ar % bkSize != 0 || m_br % bkSize != 0) {
         return;
     }
-
+    
     SYSTEMTIME Time1, Time2;
 
     char st[100];
@@ -180,6 +186,10 @@ void OnMultBlock(int m_ar, int m_br, int bkSize)
     free(pha);
     free(phb);
     free(phc);
+
+    if (timeRes != NULL) {
+        *timeRes = (double)(Time2 - Time1);
+    }
 }
 
 
@@ -203,6 +213,14 @@ void init_papi() {
             << " REVISION: " << PAPI_VERSION_REVISION(retval) << "\n";
 }
 
+void benchmarkMultiplication(size_t initialSize, size_t finalSize, size_t& step) {
+    for (size_t matrixSize = initialSize; matrixSize <= finalSize; matrixSize += step) {
+        double avgExecutionTime = 0;
+        int ret;
+        ret = PAPI_start(EventSet);
+		if (ret != PAPI_OK) cout << "ERROR: Start PAPI" << endl;
+    }
+} 
 
 int main (int argc, char *argv[])
 {
@@ -238,6 +256,7 @@ int main (int argc, char *argv[])
 		cout << endl << "1. Multiplication" << endl;
 		cout << "2. Line Multiplication" << endl;
 		cout << "3. Block Multiplication" << endl;
+        cout << "4. Benchmark Multiplication(Step 400)" << endl;
 		cout << "Selection?: ";
 		cin >>op;
 		if (op == 0)
@@ -277,7 +296,7 @@ int main (int argc, char *argv[])
 
 
 
-	}while (op != 0);
+	} while (op != 0);
 
 	ret = PAPI_remove_event( EventSet, PAPI_L1_DCM );
 	if ( ret != PAPI_OK )
