@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/marhcouto/Documents/FEUP/3_2/CPD/TP/project1/build",
-  "command": "/bin/x86_64-linux-gnu-g++-11 -O2 -g -std=gnu++14 -o CMakeFiles/cpd_project_1.dir/main.cpp.o -c /home/marhcouto/Documents/FEUP/3_2/CPD/TP/project1/assign1/src/main.cpp",
-  "file": "/home/marhcouto/Documents/FEUP/3_2/CPD/TP/project1/assign1/src/main.cpp"
-}
-]
