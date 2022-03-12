@@ -213,14 +213,14 @@ void init_papi() {
             << " REVISION: " << PAPI_VERSION_REVISION(retval) << "\n";
 }
 
-void benchmarkMultiplication(size_t initialSize, size_t finalSize, size_t& step) {
-    for (size_t matrixSize = initialSize; matrixSize <= finalSize; matrixSize += step) {
-        double avgExecutionTime = 0;
-        int ret;
-        ret = PAPI_start(EventSet);
-		if (ret != PAPI_OK) cout << "ERROR: Start PAPI" << endl;
-    }
-} 
+// void benchmarkMultiplication(size_t initialSize, size_t finalSize, size_t& step) {
+//     for (size_t matrixSize = initialSize; matrixSize <= finalSize; matrixSize += step) {
+//         double avgExecutionTime = 0;
+//         int ret;
+//         ret = PAPI_start(EventSet);
+// 		if (ret != PAPI_OK) cout << "ERROR: Start PAPI" << endl;
+//     }
+// } 
 
 int main (int argc, char *argv[])
 {
@@ -256,7 +256,7 @@ int main (int argc, char *argv[])
 		cout << endl << "1. Multiplication" << endl;
 		cout << "2. Line Multiplication" << endl;
 		cout << "3. Block Multiplication" << endl;
-        cout << "4. Benchmark Multiplication(Step 400)" << endl;
+        // cout << "4. Benchmark Multiplication(Step 400)" << endl;
 		cout << "Selection?: ";
 		cin >>op;
 		if (op == 0)

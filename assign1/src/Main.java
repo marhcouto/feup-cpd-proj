@@ -82,9 +82,8 @@ public class Main {
 
     public static void main(String[] args) {
 
+        Scanner input = new Scanner(System.in);
         while (true) {
-
-            Scanner input = new Scanner(System.in);
             long start = 0, stop = 0;
             int option = 0;
 
@@ -96,10 +95,7 @@ public class Main {
                 System.out.println("\nInvalid option (choose between 1 2 or 3)");
             }
 
-            if (option == 4) {
-                input.close();
-                return;
-            }
+            if (option == 4) break;
 
             System.out.print("Matrix dimensions:");
             int size = input.nextInt();
@@ -141,8 +137,11 @@ public class Main {
 
             // Results
             Main.partiallyPrintMatrix(res, size);
-            System.out.println("Time elapsed in nanoseconds:" + (stop - start));
+
+            float time = (float)(stop - start) / 1000000;
+            System.out.println("Time:" + (time) + "seconds");
             
         }
+        input.close();
     }
 }
