@@ -1,4 +1,6 @@
+#include <functional>
 #include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <ctime>
 #include <cmath>
@@ -11,8 +13,11 @@ using namespace std;
 #define SYSTEMTIME clock_t
 
 #define NUMBER_OF_TRIES 3
+#define BLOCK_SIZE 512
 
-void OnMult(int m_ar, int m_br, double *timeRes = NULL)
+int bkSize = BLOCK_SIZE; //TODO: Encontrar melhor forma de fazer isto
+
+void OnMult(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream = cerr)
 {
   SYSTEMTIME Time1, Time2;
 
@@ -55,9 +60,9 @@ void OnMult(int m_ar, int m_br, double *timeRes = NULL)
   for (i = 0; i < 1; i++)
   {
     for (j = 0; j < min(10, m_br); j++)
-      cerr << phc[j] << " ";
+      debugStream << phc[j] << " ";
   }
-  cerr << ";";
+  debugStream << ";";
 
   free(pha);
   free(phb);
@@ -70,7 +75,7 @@ void OnMult(int m_ar, int m_br, double *timeRes = NULL)
 }
 
 // add code here for line x line matriz multiplication
-void OnMultLine(int m_ar, int m_br, double *timeRes = NULL)
+void OnMultLine(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream = cerr)
 {
   SYSTEMTIME Time1, Time2;
 
@@ -109,13 +114,12 @@ void OnMultLine(int m_ar, int m_br, double *timeRes = NULL)
   Time2 = clock();
 
   // display 10 elements of the result matrix tto verify correctness
-  cout << "Result matrix: " << endl;
   for (i = 0; i < 1; i++)
   {
     for (j = 0; j < min(10, m_br); j++)
-      cout << phc[j] << " ";
+      debugStream << phc[j] << ";";
   }
-  cout << endl;
+  debugStream << ';';
 
   free(pha);
   free(phb);
@@ -128,7 +132,7 @@ void OnMultLine(int m_ar, int m_br, double *timeRes = NULL)
 }
 
 // add code here for block x block matriz multiplication
-void OnMultBlock(int m_ar, int m_br, int bkSize, double *timeRes = NULL)
+void OnMultBlock(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream = cerr)
 {
   if (m_ar % bkSize != 0 || m_br % bkSize != 0)
   {
@@ -183,13 +187,12 @@ void OnMultBlock(int m_ar, int m_br, int bkSize, double *timeRes = NULL)
   Time2 = clock();
 
   // display 10 elements of the result matrix tto verify correctness
-  cout << "Result matrix: " << endl;
   for (i = 0; i < 1; i++)
   {
     for (j = 0; j < min(10, m_br); j++)
-      cout << phc[j] << " ";
+      debugStream << phc[j] << ";";
   }
-  cout << endl;
+  cout << ';';
 
   free(pha);
   free(phb);
@@ -252,34 +255,36 @@ void destroy_papi(int EventSet) {
     std::cout << "FAIL destroy" << endl;
 }
 
-void benchmarkMultiplication(size_t initialSize, size_t finalSize, size_t step, int EventSet)
+void benchmark(string filePrefix, size_t initialSize, size_t finalSize, size_t step, int EventSet, void (*action)(int, int, double*, ostream&))
 {
   long long eventValues[NUMBER_OF_PAPI_EVENTS];
   long long executionEventValues[NUMBER_OF_PAPI_EVENTS];
+  char filename[256];
   for (size_t matrixSize = initialSize; matrixSize <= finalSize; matrixSize += step)
   {
-    std::cerr << "Matrix Size: " << matrixSize << std::endl;
-    std::cerr << "Iteration;ResultMatrix;";
+    sprintf(filename, "%s_result_%ld.csv", filePrefix.c_str(), matrixSize);
+    ofstream benchmarkFile(filename);
+    benchmarkFile << "Iteration;Result Matrix;";
     for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++ ) {
-      cerr << "Event " << i << ';';
+      benchmarkFile << "Event " << i << ';';
     }
-    cerr << "ExecutionTime" << endl;
+    benchmarkFile << "Execution Time" << endl;
     double avgExecutionTime = 0;
     for(size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++)
     {
       eventValues[i] = 0;
     }
     for (size_t exe = 0; exe < NUMBER_OF_TRIES; exe++) {
-      std::cerr << exe << ';';
+      benchmarkFile << exe << ';';
       double executionTime = 0;
       start_papi_event_counter(EventSet);
-      OnMult(matrixSize, matrixSize, &executionTime);
+      action(matrixSize, matrixSize, &executionTime, benchmarkFile);
       stop_papi_event_counter(EventSet, executionEventValues);
       for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
-        std::cerr << executionEventValues[i] << ';';
+        benchmarkFile << executionEventValues[i] << ';';
         eventValues[i] += executionEventValues[i];
       }
-      std::cerr << executionTime << std::endl;
+      benchmarkFile << executionTime << std::endl;
       avgExecutionTime += executionTime;
       reset_papi_event_counter(EventSet)
     }
@@ -287,11 +292,12 @@ void benchmarkMultiplication(size_t initialSize, size_t finalSize, size_t step, 
     for (int i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
       eventValues[i] = (long long) round(eventValues[i] / (double) NUMBER_OF_TRIES);
     }
-    cerr << "Average;;";
+    benchmarkFile << "Average;;";
     for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
-      cerr << eventValues[i] << ";";
+      benchmarkFile << eventValues[i] << ";";
     }
-    cerr << avgExecutionTime << std::endl;
+    benchmarkFile << avgExecutionTime << std::endl;
+    benchmarkFile.close();
   }
 }
 
@@ -314,7 +320,10 @@ int main(int argc, char *argv[])
          << "1. Multiplication" << endl;
     cout << "2. Line Multiplication" << endl;
     cout << "3. Block Multiplication" << endl;
-    cout << "4. Benchmark Multiplication(Step 400)" << endl;
+    cout << "4. Benchmark Multiplication(600 to 3000 step 400)" << endl;
+    cout << "5. Benchmark Line Multiplication(600 to 3000 step 400)" << endl;
+    cout << "6. Benchmark Line Multiplication(4096 to 10240 step 2048)" << endl;
+    cout << "7. Benchmark Block Multiplication(4096 to 10240 step 2048)" << endl;
     cout << "Selection?: ";
     cin >> op;
     if (op == 0)
@@ -336,10 +345,20 @@ int main(int argc, char *argv[])
       case 3:
         cout << "Block Size? ";
         cin >> blockSize;
-        OnMultBlock(lin, col, blockSize);
+        bkSize = blockSize;
+        OnMultBlock(lin, col);
         break;
       case 4:
-        benchmarkMultiplication(600, 1000, 400, EventSet);
+        benchmark("mult", 600, 3000, 400, EventSet, OnMult);
+        break;
+      case 5:
+        benchmark("mult_line", 600, 3000, 400, EventSet, OnMultLine);
+        break;
+      case 6:
+        benchmark("mult_line", 4096, 10240, 2048, EventSet, OnMultLine);
+        break;
+      case 7:
+        benchmark("mult_block", 4096, 10240, 2048, EventSet, OnMultBlock);
         break;
     }
   } while (op != 0);
