@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <iostream>
 #include <ctime>
+#include <cmath>
 #include <cstdlib>
 #include <papi.h>
 #include "papi_macro.hpp"
@@ -51,13 +52,12 @@ void OnMult(int m_ar, int m_br, double *timeRes = NULL)
   Time2 = clock();
 
   // display 10 elements of the result matrix tto verify correctness
-  cerr << "Result matrix: " << endl;
   for (i = 0; i < 1; i++)
   {
     for (j = 0; j < min(10, m_br); j++)
-      cout << phc[j] << " ";
+      cerr << phc[j] << " ";
   }
-  cerr << endl;
+  cerr << ";";
 
   free(pha);
   free(phb);
@@ -256,31 +256,42 @@ void benchmarkMultiplication(size_t initialSize, size_t finalSize, size_t step, 
 {
   long long eventValues[NUMBER_OF_PAPI_EVENTS];
   long long executionEventValues[NUMBER_OF_PAPI_EVENTS];
-  char resultString[512];
   for (size_t matrixSize = initialSize; matrixSize <= finalSize; matrixSize += step)
   {
+    std::cerr << "Matrix Size: " << matrixSize << std::endl;
+    std::cerr << "Iteration;ResultMatrix;";
+    for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++ ) {
+      cerr << "Event " << i << ';';
+    }
+    cerr << "ExecutionTime" << endl;
     double avgExecutionTime = 0;
+    for(size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++)
+    {
+      eventValues[i] = 0;
+    }
     for (size_t exe = 0; exe < NUMBER_OF_TRIES; exe++) {
+      std::cerr << exe << ';';
       double executionTime = 0;
       start_papi_event_counter(EventSet);
       OnMult(matrixSize, matrixSize, &executionTime);
       stop_papi_event_counter(EventSet, executionEventValues);
       for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
+        std::cerr << executionEventValues[i] << ';';
         eventValues[i] += executionEventValues[i];
       }
+      std::cerr << executionTime << std::endl;
       avgExecutionTime += executionTime;
       reset_papi_event_counter(EventSet)
     }
     avgExecutionTime /= NUMBER_OF_TRIES;
     for (int i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
-      eventValues[i] /= NUMBER_OF_TRIES;
+      eventValues[i] = (long long) round(eventValues[i] / (double) NUMBER_OF_TRIES);
     }
-    sprintf(resultString, "Matrix Size: %lu\n  Execution Time: %f\n  ", matrixSize, avgExecutionTime);
-    cout << resultString;
+    cerr << "Average;;";
     for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
-      cout << "Event " << i << ": " << eventValues[i] << "\n  ";
+      cerr << eventValues[i] << ";";
     }
-    cout << std::endl;
+    cerr << avgExecutionTime << std::endl;
   }
 }
 
