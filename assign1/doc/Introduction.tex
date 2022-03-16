@@ -1,0 +1,17 @@
+
+
+\section{Introduction}
+
+This project aims to analyze CPU performance on a single core and multiple techniques that can affect it. For this effect, different algorithms for matrix multiplication algorithms will be implemented and there effects on the processor performance analyzed. The programs used to test the algorithms are developped in Java and C++, for comparison purposes. Performance API (PAPI) enables us to fetch data directly related to the CPU activity, allowing us to better analyze the impacts of the different techniques of matrix multiplication.
+
+\subsection{Problem Description}
+
+The project consists on applying three different techniques on matrix multiplication and analyzing the impact of each one in the CPU performance. As such, the project was divided into three parts:
+
+\begin{enumerate}
+    \item Download the file containing the standard matrix multipliaction in C++; Implement the same algorithm in another language (we chose Java); Register processing times in both languages for matrixes from 600x600 to 3000x3000 in increments of 400.
+    \item Implement in both languages a version of the algorithm using line multiplication; Repeat simillar tests for this version of the algorithm; Register processing times in C++ for matrixes from 4096x4096 to 10240x10240 in increments of 2048.
+    \item Implement in C++ a version of the algorithms using block multiplication; Register processing times in C++ for matrixes from 4096x4096 to 10240x10240 in increments of 2048.
+\end{enumerate}
+
+In all stages of development, the performance of the programs was also analyzed by directly requesting data from the processor on its execution via PAPI.
