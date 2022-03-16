@@ -16,56 +16,72 @@ using namespace std;
 
 int bkSize = BLOCK_SIZE; //TODO: Encontrar melhor forma de fazer isto
 
-void OnMult(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream = cerr)
+void printResultMatrix(double* phc, size_t& matrixSize, ostream& debugStream = cerr) {
+  for (size_t i = 0; i < 1; i++)
+  {
+    for (size_t j = 0; j < min((size_t) 10, matrixSize); j++)
+      debugStream << phc[j] << ' ';
+  }
+  debugStream << ';';
+}
+
+int getBlockSize(size_t& matrixSize) {
+  int blockSize;
+  
+  cout << "Block Size? ";
+  cin >> blockSize;
+
+  if (blockSize % matrixSize != 0 || blockSize > matrixSize) {
+    return -1;
+  }
+  return blockSize;
+}
+
+void resetMatrix(double* pha, double* phb, double* phc, const int& matrixSize) {
+  for (size_t i = 0; i < matrixSize; i++) {
+    for (size_t j = 0; j < matrixSize; j++) {
+      pha[i * matrixSize + j] = (double)1.0;
+      phb[i * matrixSize + j] = (double)(i + 1);
+      phc[i * matrixSize + j] = (double)0.0;
+    }
+  }
+}
+
+void allocateAndInitMatrix(double** pha, double** phb, double** phc, const int& matrixSize) {
+  *pha = (double *)malloc((matrixSize * matrixSize) * sizeof(double));
+  *phb = (double *)malloc((matrixSize * matrixSize) * sizeof(double));
+  *phc = (double *)malloc((matrixSize * matrixSize) * sizeof(double));
+
+  resetMatrix(*pha, *phb, *phc, matrixSize);
+}
+
+void freeAllMatrix(double* pha, double* phb, double* phc) {
+  free(pha);
+  free(phb);
+  free(phc);
+}
+
+void OnMult(double* pha, double* phb, double* phc, size_t matrixSize, size_t blockSize = 0, double *timeRes = NULL)
 {
   SYSTEMTIME Time1, Time2;
 
   char st[100];
-  double temp;
   int i, j, k;
-
-  double *pha, *phb, *phc;
-
-  pha = (double *)malloc((m_ar * m_ar) * sizeof(double));
-  phb = (double *)malloc((m_ar * m_ar) * sizeof(double));
-  phc = (double *)malloc((m_ar * m_ar) * sizeof(double));
-
-  for (i = 0; i < m_ar; i++)
-    for (j = 0; j < m_ar; j++)
-      pha[i * m_ar + j] = (double)1.0;
-
-  for (i = 0; i < m_br; i++)
-    for (j = 0; j < m_br; j++)
-      phb[i * m_br + j] = (double)(i + 1);
 
   Time1 = clock();
 
-  for (i = 0; i < m_ar; i++)
+  for (i = 0; i < matrixSize; i++)
   {
-    for (j = 0; j < m_br; j++)
+    for (j = 0; j < matrixSize; j++)
     {
-      temp = 0;
-      for (k = 0; k < m_ar; k++)
+      for (k = 0; k < matrixSize; k++)
       {
-        temp += pha[i * m_ar + k] * phb[k * m_br + j];
+        phc[i * matrixSize + j] += pha[i * matrixSize + k] * phb[k * matrixSize + j];
       }
-      phc[i * m_ar + j] = temp;
     }
   }
 
   Time2 = clock();
-
-  // display 10 elements of the result matrix tto verify correctness
-  for (i = 0; i < 1; i++)
-  {
-    for (j = 0; j < min(10, m_br); j++)
-      debugStream << phc[j] << " ";
-  }
-  debugStream << ";";
-
-  free(pha);
-  free(phb);
-  free(phc);
 
   if (timeRes != NULL)
   {
@@ -74,55 +90,27 @@ void OnMult(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream = c
 }
 
 // add code here for line x line matriz multiplication
-void OnMultLine(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream = cerr)
+void OnMultLine(double* pha, double* phb, double* phc, size_t matrixSize, size_t blockSize = 0, double *timeRes = NULL)
 {
   SYSTEMTIME Time1, Time2;
 
   char st[100];
-  double temp;
   int i, j, k;
-
-  double *pha, *phb, *phc;
-
-  pha = (double *)malloc((m_ar * m_ar) * sizeof(double));
-  phb = (double *)malloc((m_ar * m_ar) * sizeof(double));
-  phc = (double *)malloc((m_ar * m_ar) * sizeof(double));
-
-  for (i = 0; i < m_ar; i++)
-    for (j = 0; j < m_ar; j++)
-      pha[i * m_ar + j] = (double)1.0;
-  phc[i * m_ar + j] = (double)0.0;
-
-  for (i = 0; i < m_br; i++)
-    for (j = 0; j < m_br; j++)
-      phb[i * m_br + j] = (double)(i + 1);
 
   Time1 = clock();
 
-  for (i = 0; i < m_ar; i++)
+  for (i = 0; i < matrixSize; i++)
   {
-    for (j = 0; j < m_br; j++)
+    for (j = 0; j < matrixSize; j++)
     {
-      for (k = 0; k < m_br; k++)
+      for (k = 0; k < matrixSize; k++)
       {
-        phc[i * m_ar + k] += pha[i * m_ar + j] * phb[j * m_ar + k];
+        phc[i * matrixSize + k] += pha[i * matrixSize + j] * phb[j * matrixSize + k];
       }
     }
   }
 
   Time2 = clock();
-
-  // display 10 elements of the result matrix tto verify correctness
-  for (i = 0; i < 1; i++)
-  {
-    for (j = 0; j < min(10, m_br); j++)
-      debugStream << phc[j] << ";";
-  }
-  debugStream << ';';
-
-  free(pha);
-  free(phb);
-  free(phc);
 
   if (timeRes != NULL)
   {
@@ -131,9 +119,9 @@ void OnMultLine(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream
 }
 
 // add code here for block x block matriz multiplication
-void OnMultBlock(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStream = cerr)
+void OnMultBlock(double* pha, double* phb, double* phc, size_t matrixSize, size_t blockSize = BLOCK_SIZE, double *timeRes = NULL)
 {
-  if (m_ar % bkSize != 0 || m_br % bkSize != 0)
+  if (matrixSize % bkSize != 0)
   {
     return;
   }
@@ -141,33 +129,17 @@ void OnMultBlock(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStrea
   SYSTEMTIME Time1, Time2;
 
   char st[100];
-  double temp;
   int i0, j0, k0, i, j, k, numberOfBlocks;
 
-  double *pha, *phb, *phc;
-
-  pha = (double *)malloc((m_ar * m_ar) * sizeof(double));
-  phb = (double *)malloc((m_ar * m_ar) * sizeof(double));
-  phc = (double *)malloc((m_ar * m_ar) * sizeof(double));
-
-  for (i = 0; i < m_ar; i++)
-    for (j = 0; j < m_ar; j++)
-      pha[i * m_ar + j] = (double)1.0;
-  phc[i * m_ar + j] = (double)0.0;
-
-  for (i = 0; i < m_br; i++)
-    for (j = 0; j < m_br; j++)
-      phb[i * m_br + j] = (double)(i + 1);
-
-  numberOfBlocks = (m_ar / bkSize);
+  numberOfBlocks = (matrixSize / bkSize);
 
   Time1 = clock();
 
-  for (i0 = 0; i0 < m_ar; i0 += bkSize)
+  for (i0 = 0; i0 < matrixSize; i0 += bkSize)
   {
-    for (j0 = 0; j0 < m_ar; j0 += bkSize)
+    for (j0 = 0; j0 < matrixSize; j0 += bkSize)
     {
-      for (k0 = 0; k0 < m_ar; k0 += bkSize)
+      for (k0 = 0; k0 < matrixSize; k0 += bkSize)
       {
         for (i = i0; i < i0 + bkSize; i++)
         {
@@ -175,7 +147,7 @@ void OnMultBlock(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStrea
           {
             for (k = k0; k < k0 + bkSize; k++)
             {
-              phc[i * m_ar + k] += pha[i * m_ar + j] * phb[j * m_ar + k];
+              phc[i * matrixSize + k] += pha[i * matrixSize + j] * phb[j * matrixSize + k];
             }
           }
         }
@@ -184,18 +156,6 @@ void OnMultBlock(int m_ar, int m_br, double *timeRes = NULL, ostream& debugStrea
   }
 
   Time2 = clock();
-
-  // display 10 elements of the result matrix tto verify correctness
-  for (i = 0; i < 1; i++)
-  {
-    for (j = 0; j < min(10, m_br); j++)
-      debugStream << phc[j] << ";";
-  }
-  cout << ';';
-
-  free(pha);
-  free(phb);
-  free(phc);
 
   if (timeRes != NULL)
   {
@@ -229,7 +189,6 @@ void init_papi(int *EventSet)
     cout << "ERROR: create eventset" << endl;
 
   //TODO: Estudar efeitos dos eventos PAPI aqui
-
   retval = PAPI_add_event(*EventSet, PAPI_L1_DCM);
   if (retval != PAPI_OK)
     cout << "ERROR: PAPI_L1_DCM" << endl;
@@ -254,13 +213,18 @@ void destroy_papi(int EventSet) {
     std::cout << "FAIL destroy" << endl;
 }
 
-void benchmark(string filePrefix, size_t initialSize, size_t finalSize, size_t step, int EventSet, void (*action)(int, int, double*, ostream&))
+void benchmark(string filePrefix, size_t initialSize, size_t finalSize, size_t step, size_t blockSize, int EventSet, void (*action)(double*, double*, double*, size_t, size_t, double*))
 {
+  double* pha;
+  double* phb;
+  double* phc;
+
   long long eventValues[NUMBER_OF_PAPI_EVENTS];
   long long executionEventValues[NUMBER_OF_PAPI_EVENTS];
   char filename[256];
   for (size_t matrixSize = initialSize; matrixSize <= finalSize; matrixSize += step)
   {
+    allocateAndInitMatrix(&pha, &phb, &phc, matrixSize);
     sprintf(filename, "%s_result_%ld.csv", filePrefix.c_str(), matrixSize);
     ofstream benchmarkFile(filename);
     benchmarkFile << "Iteration;Result Matrix;";
@@ -277,16 +241,19 @@ void benchmark(string filePrefix, size_t initialSize, size_t finalSize, size_t s
       benchmarkFile << exe << ';';
       double executionTime = 0;
       start_papi_event_counter(EventSet);
-      action(matrixSize, matrixSize, &executionTime, benchmarkFile);
+      action(pha, phb, phc, matrixSize, matrixSize, &executionTime);
       stop_papi_event_counter(EventSet, executionEventValues);
+      printResultMatrix(phc, matrixSize, benchmarkFile);
       for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
         benchmarkFile << executionEventValues[i] << ';';
         eventValues[i] += executionEventValues[i];
       }
       benchmarkFile << executionTime << std::endl;
       avgExecutionTime += executionTime;
-      reset_papi_event_counter(EventSet)
+      resetMatrix(pha, phb, phc, matrixSize);
+      reset_papi_event_counter(EventSet);
     }
+    freeAllMatrix(pha, phb, phc);
     avgExecutionTime /= NUMBER_OF_TRIES;
     for (int i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
       eventValues[i] = (long long) round(eventValues[i] / (double) NUMBER_OF_TRIES);
@@ -302,9 +269,14 @@ void benchmark(string filePrefix, size_t initialSize, size_t finalSize, size_t s
 
 int main(int argc, char *argv[])
 {
+  double* pha;
+  double* phb;
+  double* phc;
+
+  pha = phb = phc =  NULL;
 
   char c;
-  int lin, col, blockSize;
+  size_t lin, col, blockSize;
   int op;
 
   int EventSet = PAPI_NULL;
@@ -333,33 +305,46 @@ int main(int argc, char *argv[])
       col = lin;
     }
 
+    size_t blockSize;
+
+    if (op < 4) {
+      allocateAndInitMatrix(&pha, &phb, &phc, lin);
+    }
+
     switch (op)
     {
       case 1:
-        OnMult(lin, col);
+        OnMult(pha, phb, phc, lin);
         break;
       case 2:
-        OnMultLine(lin, col);
+        OnMultLine(pha, phb, phc, lin);
         break;
       case 3:
-        cout << "Block Size? ";
-        cin >> blockSize;
-        bkSize = blockSize;
-        OnMultBlock(lin, col);
+        blockSize = getBlockSize(lin);
+        if (blockSize != -1) {
+          OnMultBlock(pha, phb, phc, lin, blockSize);
+        } else {
+          cout << "Invalid block size!" << endl;
+        }
         break;
       case 4:
-        benchmark("mult", 600, 3000, 400, EventSet, OnMult);
+        benchmark("mult", 600, 3000, 400, blockSize, EventSet, OnMult);
         break;
       case 5:
-        benchmark("mult_line", 600, 3000, 400, EventSet, OnMultLine);
+        benchmark("mult_line", 600, 3000, 400, blockSize, EventSet, OnMultLine);
         break;
       case 6:
-        benchmark("mult_line", 4096, 10240, 2048, EventSet, OnMultLine);
+        benchmark("mult_line", 4096, 10240, 2048, blockSize, EventSet, OnMultLine);
         break;
       case 7:
-        benchmark("mult_block", 4096, 10240, 2048, EventSet, OnMultBlock);
+        benchmark("mult_block", 4096, 10240, 2048, blockSize, EventSet, OnMultBlock);
         break;
     }
+
+    if (op < 4) {
+      freeAllMatrix(pha, phb, phc);
+    }
+
   } while (op != 0);
 
   destroy_papi(EventSet);
