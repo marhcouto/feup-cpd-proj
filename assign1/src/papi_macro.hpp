@@ -1,6 +1,6 @@
 #pragma once
 
-#define NUMBER_OF_PAPI_EVENTS 2
+#define NUMBER_OF_PAPI_EVENTS 22
 
 #define start_papi_event_counter(EventSet) \
   if (PAPI_start(EventSet) != PAPI_OK) cout << "ERROR: Start PAPI" << endl;
