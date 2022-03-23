@@ -169,113 +169,41 @@ void handle_error(int retval)
   exit(1);
 }
 
-void init_papi(int *EventSet)
-{
-  int retval = PAPI_library_init(PAPI_VER_CURRENT);
-  if (retval != PAPI_VER_CURRENT && retval < 0)
-  {
-    printf("PAPI library version mismatch!\n");
-    exit(1);
-  }
-  if (retval < 0)
-    handle_error(retval);
+void init_papi(int *EventSet) {
+    int retval = PAPI_library_init(PAPI_VER_CURRENT);
+    if (retval != PAPI_VER_CURRENT && retval < 0) {
+        printf("PAPI library version mismatch!\n");
+        exit(1);
+    }
+    if (retval < 0)
+        handle_error(retval);
 
-  std::cout << "PAPI Version Number: MAJOR: " << PAPI_VERSION_MAJOR(retval)
-            << " MINOR: " << PAPI_VERSION_MINOR(retval)
-            << " REVISION: " << PAPI_VERSION_REVISION(retval) << "\n";
-  
-  retval = PAPI_create_eventset(EventSet);
-  if (retval != PAPI_OK)
-    cout << "ERROR: create eventset" << endl;
+    std::cout << "PAPI Version Number: MAJOR: " << PAPI_VERSION_MAJOR(retval)
+              << " MINOR: " << PAPI_VERSION_MINOR(retval)
+              << " REVISION: " << PAPI_VERSION_REVISION(retval) << "\n";
 
-  //TODO: Estudar efeitos dos eventos PAPI aqui
-  retval = PAPI_add_event(*EventSet, PAPI_L1_DCM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L1_DCM" << endl;
+    retval = PAPI_create_eventset(EventSet);
+    if (retval != PAPI_OK)
+        cout << "ERROR: create eventset" << endl;
 
-  retval = PAPI_add_event(*EventSet, PAPI_L2_DCM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_DCM" << endl;
+    //TODO: Estudar efeitos dos eventos PAPI aqui
 
-  retval = PAPI_add_event(*EventSet, PAPI_L1_TCM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L1_TCM" << endl;
-  
-  retval = PAPI_add_event(*EventSet, PAPI_L2_TCM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_TCM" << endl;
 
-  retval = PAPI_add_event(*EventSet, PAPI_L3_TCM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_TCM" << endl;
+    retval = PAPI_add_event(*EventSet, PAPI_L1_DCM);
+    if (retval != PAPI_OK)
+        cout << "ERROR: PAPI_L3_TCA" << endl;
 
-  retval = PAPI_add_event(*EventSet, PAPI_L1_LDM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L1_LDM" << endl;
+    retval = PAPI_add_event(*EventSet, PAPI_L2_DCM);
+    if (retval != PAPI_OK)
+        cout << "ERROR: PAPI_L2_DCM" << endl;
 
-  retval = PAPI_add_event(*EventSet, PAPI_L2_LDM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_LDM" << endl;
+    retval = PAPI_add_event(*EventSet, PAPI_L2_DCA);
+    if (retval != PAPI_OK)
+        cout << "ERROR: PAPI_L2_DCA" << endl;
 
-  retval = PAPI_add_event(*EventSet, PAPI_L3_LDM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_LDM" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L1_STM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L1_LDM" << endl;
-  
-  retval = PAPI_add_event(*EventSet, PAPI_L2_STM);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_STM" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L2_DCA);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_DCA" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L3_DCA);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_DCA" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L2_DCR);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_DCR" << endl;
-  
-  retval = PAPI_add_event(*EventSet, PAPI_L3_DCR);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_DCR" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L2_DCW);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_DCW" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L3_DCW);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_DCW" << endl;
-  
-  retval = PAPI_add_event(*EventSet, PAPI_L2_TCA);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_TCA" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L3_TCA);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_TCA" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L2_TCR);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_TCR" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L3_TCR);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_TCR" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L2_TCW);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L2_TCW" << endl;
-
-  retval = PAPI_add_event(*EventSet, PAPI_L3_TCW);
-  if (retval != PAPI_OK)
-    cout << "ERROR: PAPI_L3_TCW" << endl;
+    retval = PAPI_add_event(*EventSet, PAPI_L3_DCA);
+    if (retval != PAPI_OK)
+        cout << "ERROR: PAPI_L3_DCA" << endl;
 }
 
 void destroy_papi(int EventSet) {
