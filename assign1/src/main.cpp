@@ -11,7 +11,7 @@ using namespace std;
 
 #define SYSTEMTIME clock_t
 
-#define NUMBER_OF_TRIES 7
+#define NUMBER_OF_TRIES 3
 #define BLOCK_SIZE 512
 
 void printResultMatrix(double* phc, size_t& matrixSize, ostream& debugStream = cerr) {
