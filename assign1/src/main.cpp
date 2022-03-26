@@ -12,10 +12,8 @@ using namespace std;
 
 #define SYSTEMTIME clock_t
 
-#define NUMBER_OF_TRIES 7
+#define NUMBER_OF_TRIES 3
 #define BLOCK_SIZE 512
-
-int bkSize = BLOCK_SIZE; //TODO: Encontrar melhor forma de fazer isto
 
 void printResultMatrix(double* phc, size_t& matrixSize, ostream& debugStream = cerr) {
   for (size_t i = 0; i < 1; i++)
@@ -26,15 +24,12 @@ void printResultMatrix(double* phc, size_t& matrixSize, ostream& debugStream = c
   debugStream << ';';
 }
 
-int getBlockSize(size_t& matrixSize) {
+int getBlockSize() {
   int blockSize;
   
   cout << "Block Size? ";
   cin >> blockSize;
 
-  if (blockSize % matrixSize != 0 || blockSize > matrixSize) {
-    return -1;
-  }
   return blockSize;
 }
 
@@ -120,9 +115,11 @@ void OnMultLine(double* pha, double* phb, double* phc, size_t matrixSize, size_t
 }
 
 // add code here for block x block matriz multiplication
-void OnMultBlock(double* pha, double* phb, double* phc, size_t matrixSize, size_t blockSize = BLOCK_SIZE, double *timeRes = NULL)
+void OnMultBlock(double* pha, double* phb, double* phc, size_t matrixSize, size_t blockSize, double *timeRes = NULL)
 {
-  if (matrixSize % bkSize != 0)
+  cout << "Running with block size " << blockSize << endl;
+
+  if (matrixSize % blockSize != 0)
   {
     return;
   }
@@ -132,21 +129,21 @@ void OnMultBlock(double* pha, double* phb, double* phc, size_t matrixSize, size_
   char st[100];
   int i0, j0, k0, i, j, k, numberOfBlocks;
 
-  numberOfBlocks = (matrixSize / bkSize);
+  numberOfBlocks = (matrixSize / blockSize);
 
   Time1 = clock();
 
-  for (i0 = 0; i0 < matrixSize; i0 += bkSize)
+  for (i0 = 0; i0 < matrixSize; i0 += blockSize)
   {
-    for (j0 = 0; j0 < matrixSize; j0 += bkSize)
+    for (j0 = 0; j0 < matrixSize; j0 += blockSize)
     {
-      for (k0 = 0; k0 < matrixSize; k0 += bkSize)
+      for (k0 = 0; k0 < matrixSize; k0 += blockSize)
       {
-        for (i = i0; i < i0 + bkSize; i++)
+        for (i = i0; i < i0 + blockSize; i++)
         {
-          for (j = j0; j < j0 + bkSize; j++)
+          for (j = j0; j < j0 + blockSize; j++)
           {
-            for (k = k0; k < k0 + bkSize; k++)
+            for (k = k0; k < k0 + blockSize; k++)
             {
               phc[i * matrixSize + k] += pha[i * matrixSize + j] * phb[j * matrixSize + k];
             }
@@ -252,7 +249,7 @@ void benchmark(string filePrefix, size_t initialSize, size_t finalSize, size_t s
       benchmarkFile << exe << ';';
       double executionTime = 0;
       start_papi_event_counter(EventSet);
-      action(pha, phb, phc, matrixSize, matrixSize, &executionTime);
+      action(pha, phb, phc, matrixSize, blockSize, &executionTime);
       stop_papi_event_counter(EventSet, executionEventValues);
       printResultMatrix(phc, matrixSize, benchmarkFile);
       for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++) {
@@ -331,7 +328,7 @@ int main(int argc, char *argv[])
         OnMultLine(pha, phb, phc, lin);
         break;
       case 3:
-        blockSize = getBlockSize(lin);
+        blockSize = getBlockSize();
         if (blockSize != -1) {
           OnMultBlock(pha, phb, phc, lin, blockSize);
         } else {
@@ -347,9 +344,17 @@ int main(int argc, char *argv[])
       case 6:
         benchmark("mult_line", 4096, 10240, 2048, blockSize, EventSet, OnMultLine);
         break;
-      case 7:
-        benchmark("mult_block", 4096, 10240, 2048, blockSize, EventSet, OnMultBlock);
+      case 7: {
+        blockSize = getBlockSize();
+        if (blockSize != -1) {
+          char multBlockFilePrefix[50];
+          sprintf(multBlockFilePrefix, "mult_block_%d", blockSize);
+          benchmark(multBlockFilePrefix, 4096, 10240, 2048, blockSize, EventSet, OnMultBlock);
+        } else {
+          cout << "Invalid block size!" << endl;
+        }
         break;
+      }
     }
 
     if (op < 4) {
