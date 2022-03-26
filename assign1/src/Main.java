@@ -169,76 +169,77 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Scanner input = new Scanner(System.in);
-        while (true) {
-            double start = 0, stop = 0;
-            int option = 0;
-
-            // User input
+        try (Scanner input = new Scanner(System.in)) {
             while (true) {
-                System.out.println("\n\nChoose method:\n1. Multiplication\n2. Line Multiplication\n3. Block Multiplication\n4. Benchmark mode\n5. Exit");
-                option = input.nextInt();
-                if (option == 1 || option == 2 || option == 3 || option == 4) break;
-                System.out.println("\nInvalid option (choose between 1 2 or 3)");
-            }
+                double start = 0, stop = 0;
+                int option = 0;
 
-            if (option == 5) break;
-
-            if (option == 4) {
-                benchmark();
-
-
-                return;
-            }
-
-            System.out.print("Matrix dimensions:");
-            int size = input.nextInt();
-
-
-            // Matrix initialization
-            int[][] m1 = new int[size][size];
-            int[][] m2 = new int[size][size];
-            int[][] res = new int[size][size];
-            Main.initializeMatrixes(m1, m2, res, size);
-
-            // Calculations
-            switch (option) {
-                case 1: {
-                    start = System.nanoTime();
-                    Main.OnMult(m1, m2, res, size);
-                    stop = System.nanoTime();
-                    break;
+                // User input
+                while (true) {
+                    System.out.println("\n\nChoose method:\n1. Multiplication\n2. Line Multiplication\n3. Block Multiplication\n4. Benchmark mode\n5. Exit");
+                    option = input.nextInt();
+                    if (option == 1 || option == 2 || option == 3 || option == 4) break;
+                    System.out.println("\nInvalid option (choose between 1 2 or 3)");
                 }
-                case 2: {
-                    start = System.nanoTime();
-                    Main.OnMultLine(m1, m2, res, size);
-                    stop = System.nanoTime();
-                    break;
-                }
-                case 3: {
-                    System.out.print("\nBlock size:");
-                    int noBlocks = input.nextInt();
-                    start = System.nanoTime();
-                    Main.OnMultBlock(m1, m2, res, size, noBlocks);
-                    stop = System.nanoTime();
-                    break;
-                }
-                case 4: {
 
-                }
-                default: {
-                    System.out.println("\nInternal error: Invalid option");
+                if (option == 5) break;
+
+                if (option == 4) {
+                    benchmark();
+
+
                     return;
                 }
+
+                System.out.print("Matrix dimensions:");
+                int size = input.nextInt();
+
+
+                // Matrix initialization
+                int[][] m1 = new int[size][size];
+                int[][] m2 = new int[size][size];
+                int[][] res = new int[size][size];
+                Main.initializeMatrixes(m1, m2, res, size);
+
+                // Calculations
+                switch (option) {
+                    case 1: {
+                        start = System.nanoTime();
+                        Main.OnMult(m1, m2, res, size);
+                        stop = System.nanoTime();
+                        break;
+                    }
+                    case 2: {
+                        start = System.nanoTime();
+                        Main.OnMultLine(m1, m2, res, size);
+                        stop = System.nanoTime();
+                        break;
+                    }
+                    case 3: {
+                        System.out.print("\nBlock size:");
+                        int noBlocks = input.nextInt();
+                        start = System.nanoTime();
+                        Main.OnMultBlock(m1, m2, res, size, noBlocks);
+                        stop = System.nanoTime();
+                        break;
+                    }
+                    case 4: {
+
+                    }
+                    default: {
+                        System.out.println("\nInternal error: Invalid option");
+                        return;
+                    }
+                }
+
+                // Results
+                Main.partiallyPrintMatrix(res, size);
+
+                float time = (float)(stop - start) / 1000000000;
+                System.out.println("Time:" + (time) + "seconds");
+                
             }
-
-            // Results
-            Main.partiallyPrintMatrix(res, size);
-
-            float time = (float)(stop - start) / 1000000000;
-            System.out.println("Time:" + (time) + "seconds");
-            
+            input.close();
         }
-        input.close();
     }
 }
