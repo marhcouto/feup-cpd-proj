@@ -318,22 +318,25 @@ int main(int argc, char *argv[])
     if (op < 4) {
       allocateAndInitMatrix(&pha, &phb, &phc, lin);
     }
-
+    double timeRes;
     switch (op)
     {
       case 1:
-        OnMult(pha, phb, phc, lin);
+        OnMult(pha, phb, phc, lin, 0, &timeRes);
+        std::cout << "Execution time: " << timeRes << "seconds" << std::endl;
         break;
       case 2:
-        OnMultLine(pha, phb, phc, lin);
+        OnMultLine(pha, phb, phc, lin, 0, &timeRes);
+        std::cout << "Execution time: " << timeRes << "seconds" << std::endl;
         break;
       case 3:
         blockSize = getBlockSize();
         if (blockSize != -1) {
-          OnMultBlock(pha, phb, phc, lin, blockSize);
+          OnMultBlock(pha, phb, phc, lin, blockSize, &timeRes);
         } else {
           cout << "Invalid block size!" << endl;
         }
+        std::cout << "Execution time: " << timeRes << "seconds" << std::endl;
         break;
       case 4:
         benchmark("mult", 600, 3000, 400, blockSize, EventSet, OnMult);

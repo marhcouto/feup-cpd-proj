@@ -178,7 +178,7 @@ public class Main {
                 while (true) {
                     System.out.println("\n\nChoose method:\n1. Multiplication\n2. Line Multiplication\n3. Block Multiplication\n4. Benchmark mode\n5. Exit");
                     option = input.nextInt();
-                    if (option == 1 || option == 2 || option == 3 || option == 4) break;
+                    if (option >= 1 && option <= 5) break;
                     System.out.println("\nInvalid option (choose between 1 2 or 3)");
                 }
 
