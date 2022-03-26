@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <papi.h>
+#include <sstream>
 #include "papi_macro.hpp"
 
 using namespace std;
@@ -234,7 +235,9 @@ void benchmark(string filePrefix, size_t initialSize, size_t finalSize, size_t s
   {
     allocateAndInitMatrix(&pha, &phb, &phc, matrixSize);
     sprintf(filename, "%s_result_%ld.csv", filePrefix.c_str(), matrixSize);
-    ofstream benchmarkFile(filename);
+    stringstream ss;
+    ss << "../doc/execution_data/" << filePrefix << "/" << filename;
+    ofstream benchmarkFile(ss.str());
     benchmarkFile << "Iteration;Result Matrix;";
     for (size_t i = 0; i < NUMBER_OF_PAPI_EVENTS; i++ ) {
       benchmarkFile << "Event " << i << ';';
