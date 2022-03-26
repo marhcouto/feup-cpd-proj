@@ -86,7 +86,7 @@ public class Main {
                 results.add((stop - start) / 1000000000);
             }
             StringBuilder sb = new StringBuilder();
-            sb.append("mult/java_mult_result_");
+            sb.append("../doc/execution_data/mult/java_mult_result_");
             sb.append(size);
             sb.append(".csv");
             Main.printToCSV(results, sb.toString());
@@ -105,7 +105,7 @@ public class Main {
                 results2.add((stop - start) / 1000000000);
             }
             sb.setLength(0);
-            sb.append("multline/java_mult_line_result_");
+            sb.append("../doc/execution_data/mult_line/java_mult_line_result_");
             sb.append(size);
             sb.append(".csv");
             Main.printToCSV(results2, sb.toString());
