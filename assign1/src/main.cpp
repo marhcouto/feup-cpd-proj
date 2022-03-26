@@ -11,7 +11,7 @@ using namespace std;
 
 #define SYSTEMTIME clock_t
 
-#define NUMBER_OF_TRIES 3
+#define NUMBER_OF_TRIES 7
 #define BLOCK_SIZE 512
 
 int bkSize = BLOCK_SIZE; //TODO: Encontrar melhor forma de fazer isto
@@ -191,7 +191,7 @@ void init_papi(int *EventSet) {
 
     retval = PAPI_add_event(*EventSet, PAPI_L1_DCM);
     if (retval != PAPI_OK)
-        cout << "ERROR: PAPI_L3_TCA" << endl;
+        cout << "ERROR: PAPI_L1_DCM" << endl;
 
     retval = PAPI_add_event(*EventSet, PAPI_L2_DCM);
     if (retval != PAPI_OK)
