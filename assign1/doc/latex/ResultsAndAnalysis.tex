@@ -1,12 +1,12 @@
 \section{Results and Analysis}
 
 In order to analyze the algorithms, we used both PAPI events and timed the algorithms for differently sized matrixes.
-The data collected was saved in csv files and transformed into graphics for better analysis.
+The data collected was saved in .csv files and transformed into graphics for better analysis.
 
 \subsection{PAPI events inconsistencies}
 
-At the begining of the project we wanted to collect data about data cache accesses to calculate miss to access ratio.
-As we analysed our data we found that most of the time data cache accesses were lower than misses. Later we found that PAPI gives no garanties that data cache misses, accesses and hits have any correlation [1] so our analysis was limited do only data cache misses. We didn't used level 3 data cache accesses because this metric is the same as level 2 data cache misses as can be seen in PAPI event description. 
+At the beginning of the project we wanted to collect data about data cache accesses to calculate miss to access ratio.
+As we analysed our data we found that most of the time data cache accesses were lower than misses. Later we found that PAPI gives no guaranties that data cache misses, accesses and hits have any correlation [1] so our analysis was limited do only data cache misses. We didn't used level 3 data cache accesses because this metric is the same as level 2 data cache misses as can be seen in PAPI event description. 
 
 \subsection{Matrixes from 600x600 to 3000x3000}
 
@@ -14,7 +14,7 @@ As we analysed our data we found that most of the time data cache accesses were 
 
 When comparing the different algorithms that were implemented regarding execution times and \uppercase{GFLOPS} we can see that, as matrix size grows, \textbf{Multi-line Matrix Multiplication} is an order of magnitude more efficient than \textbf{Normal Matrix Multiplication}. 
 
-The comparisson between algorithms regarding GFLOPS shows that for the same matrixes the computer performed more almost double the operations per second when running \textbf{Multi-line Matrix Multiplication} when compared with it's counterpart. This indicates that \textbf{Multi-line Matrix Multiplication} is using the computer resources more efficiently as we will discuss below.
+The comparison between algorithms regarding GFLOPS shows that for the same matrixes, the computer performed more almost double the operations per second when running \textbf{Multi-line Matrix Multiplication} when compared with it's counterpart. This indicates that \textbf{Multi-line Matrix Multiplication} is using the computer resources more efficiently as we will discuss below.
 
 The tendencies described above were verified both on C++ and Java. Java being a high-level language performed worse than C++ in \textbf{Normal Matrix Multiplication}. This tendency was not verified in \textbf{Multi-line Matrix Multiplication} for this matrix sizes with Java performing as good as C++. This can be explained because the algorithm is more efficient so performance trade-offs were not observed.
 
@@ -35,7 +35,7 @@ The tendencies described above were verified both on C++ and Java. Java being a 
 
 \subsubsection{PAPI events analysis}
 
-The comparison of the \textbf{data cache misses} in L1 and L2 (PAPI\_L1\_DCM and PAPI\_L2\_DCM) between \textbf{Normal Matrix Multiplication} and \textbf{Multi-line Matrix Multiplication} draws us corroborate our theories: the second method of matrix multiplication avoids many cache misses. Although we expected to see a higher number of L1 cache misses than L2 cache misses, because there are some data that might not be present in L1 cache but might be present in L2 cache, our data contradicts this fact.
+The comparison of the \textbf{data cache misses} in L1 and L2 (PAPI\_L1\_DCM and PAPI\_L2\_DCM) between \textbf{Normal Matrix Multiplication} and \textbf{Multi-line Matrix Multiplication} draws us corroborate our theories: the second method of matrix multiplication avoids many cache misses. Although we expected to see a higher number of L1 cache misses than L2 cache misses, because there is some data that might not be present in L1 cache but might be in L2 cache, our data contradicts this fact.
 
 \begin{figure}[H]
     \centering

@@ -3,19 +3,19 @@
 The project consists on applying three different techniques on matrix multiplication and analyzing the impact of each one in the CPU performance. As such, the project was divided into three parts:
 
 \begin{enumerate}
-    \item Download the file containing the standard matrix multipliaction in C++; Implement the same algorithm in another language (we chose Java); Register processing times in both languages for matrixes from 600x600 to 3000x3000 in increments of 400.
-    \item Implement in both languages a version of the algorithm using line multiplication; Repeat simillar tests for this version of the algorithm; Register processing times in C++ for matrixes from 4096x4096 to 10240x10240 in increments of 2048.
-    \item Implement in C++ a version of the algorithms using block multiplication; Register processing times in C++ for matrixes from 4096x4096 to 10240x10240 in increments of 2048.
+    \item Download the file containing the standard matrix multiplication in C++; Implement the same algorithm in a different language (we chose Java); Register processing times in both languages for matrixes from 600x600 to 3000x3000 in increments of 400.
+    \item Implement in both languages a version of the algorithm using line multiplication; Repeat similar tests for this version of the algorithm; Register processing times in C++ for matrixes from 4096x4096 to 10240x10240 in increments of 2048.
+    \item Implement a C++ a version of the algorithms using block multiplication; Register processing times in C++ for matrixes from 4096x4096 to 10240x10240 in increments of 2048.
 \end{enumerate}
 
-In all stages of development, the performance of the programs was also analyzed by directly requesting data from the processor on its execution via PAPI.
+In all stages of development, the performance of the programs was also analyzed directly by requesting data from the processor on its execution via PAPI.
 
 \section{Algorithms Explanation}
 
 \subsection{Normal Matrix Multiplication}
 The algorithm to use in the first part of the project (and that is already given) multiplies two matrixes represented as arrays of arrays (or simply arrays, depending on the implementation). In this project, only square matrixes will be used in the algorithms. 
 
-The algorithm is composed of three for loops, inclosed in each other. 
+The algorithm is composed of three nested for loops. 
 For the multiplication of matrix A with matrix B and result C ($C = A \times B$):
 
 \begin{itemize}
@@ -47,9 +47,9 @@ The algorihm is very similar to the previous one, with a slight change in what t
     \item \textbf{Space Complexity:} $O(N^2)$, where N is the line size of the matrixes
 \end{itemize}
 
-Although the time complexity remains the same, this algorithm's efficiency is signficantly greater than the previous one due to the change in the loop's variants. 
+Although the time complexity remains the same, this algorithm's efficiency is significantly greater than the previous one due to the change in the loop's variants. 
 
-\paragraph{Explanation:} In the previous algorithm, for every iteration of the most inner loop, a cache miss will be issued by the CPU and a different row of B matrix will be loaded into the processor's cache. This happens because the matrixes are represented as an array of lines rather than columns, which means every time the processor needs an element from not present in the line currently loaded, it will have to get the one it belongs to from main memory. As for each iteration of the most inner loop the element from B used is always in a different line, the CPU loads a new line from main memory $N^3$ times.
+\paragraph{Explanation:} In the previous algorithm, for every iteration of the most inner loop, a cache miss will be issued by the CPU and a different row of B matrix will be loaded into the processor's cache. This happens because the matrixes are represented as an array of lines rather than columns, which means every time the processor needs an element that is not present in the line currently loaded, it will have to get the one it belongs to from main memory. As for each iteration of the most inner loop the element from B used is always in a different line, the CPU loads a new line from main memory $N^3$ times.
 
 The \textbf{Multiline Matrix Multiplication} algorithm reduces the number of cache misses by changing the order of the loops. With the new structure, the most inner loop's variant is only used in columns rather than lines, which means only for the other two loops' iterations will the processor need to load new lines. The number of cache misses reduces to $N^2$, thus increasing the efficiency of the process.
 
@@ -57,9 +57,9 @@ The \textbf{Multiline Matrix Multiplication} algorithm reduces the number of cac
 
 
 \subsection{Block Matrix Multiplication}
-In the third part of this project, \textbf{Block Matrix Multiplication} will be used. This algorithm implements the idea of dividing a matrix into smaller matrixes and multiplyiing them instead. 
+In the third part of this project, \textbf{Block Matrix Multiplication} will be used. This algorithm implements the idea of splitting a matrix into smaller matrixes and multiplying them instead. 
 
-This algorithm is composed of 6 inclosed for loops. The three outer loops account for the submatrixes chosen for the calculation. The three inner loops execute \textbf{Multiline Multiplication} between the submatrixes chosen.
+This algorithm is composed of 6 nested for loops. The three outer loops account for the submatrixes chosen for the calculation. The three inner loops execute \textbf{Multiline Multiplication} between the submatrixes chosen.
 
 For the multiplication of matrix A with matrix B and result C ($C = A \times B$):
 
@@ -85,6 +85,6 @@ For the multiplication of matrix A with matrix B and result C ($C = A \times B$)
     \item \textbf{Space Complexity:} $O(N^2)$, where N is the line size of the matrixes
 \end{itemize}
 
-Although the time complexity is the same, once again this algorithm is a big improvement from the previous one, specially in multiplication of very big matrixes.
+Although the time complexity is the same, once again this algorithm is a big improvement from the previous one, specially in multiplication of larger matrixes.
 
-\paragraph{Explanation:} This algorithm, once again, is more efficient due to optimizing the number of cache misses. Some matrixes are so big that a whole line can't fit in the processor's cache. By dividing the matrix into smaller chunks that fit in it, the number of cache misses can be drastically reduced.
+\paragraph{Explanation:} This algorithm, once again, is more efficient due to the optimization related with the number of cache misses. Some matrixes are so big that a whole line can't fit in the processor's cache. By splitting the matrix into smaller chunks that fit in it, the number of cache misses can be drastically reduced.
