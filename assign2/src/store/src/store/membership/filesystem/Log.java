@@ -1,4 +1,4 @@
-package store.membership;
+package store.membership.filesystem;
 
 public class Log implements FileStorable {
     private String nodeIp;

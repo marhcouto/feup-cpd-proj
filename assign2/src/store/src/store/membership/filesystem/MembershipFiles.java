@@ -1,4 +1,4 @@
-package store.membership;
+package store.membership.filesystem;
 
 public class MembershipFiles {
     public static final String MEMBERSHIP_COUNTER = "membership_counter";

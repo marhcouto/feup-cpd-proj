@@ -1,17 +1,19 @@
 package store;
 
-import java.net.Inet4Address;
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.channels.ServerSocketChannel;
 
-public class Store {
+public class Node {
     public static final int EXPECTED_NUM_ARGS = 4;
     private String nodeId;
     private InetAddress mCastIpAddress;
     private int mCastPort;
     private int storePort;
 
-    private Store(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) {
+    private Node(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) {
         this.nodeId = nodeId;
         this.mCastIpAddress = mCastIpAddress;
         this.mCastPort = mCastPort;
@@ -22,7 +24,7 @@ public class Store {
         return "Usage: java Store <IP_mcast_addr> <IP_mcast_port> <node_id>  <Store_port>";
     }
 
-    public static Store FromArguments(String[] args) throws InvalidArgumentsException {
+    public static Node FromArguments(String[] args) throws InvalidArgumentsException {
         if (args.length != EXPECTED_NUM_ARGS) {
             throw new InvalidArgumentsException(String.format("Expected %d arguments but %d were given", EXPECTED_NUM_ARGS, args.length));
         }
@@ -49,6 +51,15 @@ public class Store {
             throw new InvalidArgumentsException("The mcast host provided in the arguments couldn't be found");
         }
 
-        return new Store(nodeId, mCastIpAddress, mCastPort, storePort);
+        return new Node(nodeId, mCastIpAddress, mCastPort, storePort);
+    }
+
+    public void join() throws IOException {
+        ServerSocketChannel membershipSocketChannel = ServerSocketChannel.open();
+        membershipSocketChannel.configureBlocking(false);
+        membershipSocketChannel.bind(new InetSocketAddress(this.storePort));
+        membershipSocketChannel.
+
+
     }
 }

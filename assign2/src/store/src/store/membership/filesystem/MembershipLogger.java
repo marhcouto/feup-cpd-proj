@@ -1,4 +1,4 @@
-package store.membership;
+package store.membership.filesystem;
 
 import java.io.IOException;
 import java.nio.file.Files;
