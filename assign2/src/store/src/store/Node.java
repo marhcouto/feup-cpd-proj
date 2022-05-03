@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 
 public class Node {
@@ -57,9 +59,7 @@ public class Node {
     public void join() throws IOException {
         ServerSocketChannel membershipSocketChannel = ServerSocketChannel.open();
         membershipSocketChannel.configureBlocking(false);
+        membershipSocketChannel.register(selector = Selector.open(), SelectionKey.OP_ACCEPT);
         membershipSocketChannel.bind(new InetSocketAddress(this.storePort));
-        membershipSocketChannel.
-
-
     }
 }
