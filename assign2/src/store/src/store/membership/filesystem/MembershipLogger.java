@@ -27,6 +27,10 @@ public class MembershipLogger {
                 .get()[0]);
     }
 
+    public int getMembershipCounter() {
+        return membershipCounter;
+    }
+
     public void updateCounter() throws IOException {
         Path path = Paths.get(nodeFsRoot + MembershipFiles.MEMBERSHIP_COUNTER);
         Files.writeString(path, Integer.valueOf(++membershipCounter).toString());

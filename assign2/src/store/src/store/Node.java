@@ -1,12 +1,11 @@
 package store;
 
+import store.membership.MembershipProtocol;
+import store.membership.filesystem.MembershipLogger;
+
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
 
 public class Node {
     public static final int EXPECTED_NUM_ARGS = 4;
@@ -15,18 +14,21 @@ public class Node {
     private int mCastPort;
     private int storePort;
 
-    private Node(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) {
+    private MembershipLogger membershipLogger;
+
+    private Node(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) throws IOException {
         this.nodeId = nodeId;
         this.mCastIpAddress = mCastIpAddress;
         this.mCastPort = mCastPort;
         this.storePort = storePort;
+        this.membershipLogger = new MembershipLogger(nodeId);
     }
 
     public static String usage() {
         return "Usage: java Store <IP_mcast_addr> <IP_mcast_port> <node_id>  <Store_port>";
     }
 
-    public static Node FromArguments(String[] args) throws InvalidArgumentsException {
+    public static Node FromArguments(String[] args) throws InvalidArgumentsException, IOException {
         if (args.length != EXPECTED_NUM_ARGS) {
             throw new InvalidArgumentsException(String.format("Expected %d arguments but %d were given", EXPECTED_NUM_ARGS, args.length));
         }
@@ -57,9 +59,6 @@ public class Node {
     }
 
     public void join() throws IOException {
-        ServerSocketChannel membershipSocketChannel = ServerSocketChannel.open();
-        membershipSocketChannel.configureBlocking(false);
-        membershipSocketChannel.register(selector = Selector.open(), SelectionKey.OP_ACCEPT);
-        membershipSocketChannel.bind(new InetSocketAddress(this.storePort));
+        new MembershipProtocol(membershipLogger, mCastIpAddress.getHostAddress(), mCastPort, nodeId, storePort).performJoin();
     }
 }

@@ -1,12 +1,19 @@
 package store.membership.filesystem;
 
-public class Log implements FileStorable {
+import store.coms.NetworkSerializable;
+
+public class Log implements FileStorable, NetworkSerializable {
     private String nodeIp;
     private String membershipCounter;
 
     public Log(String nodeIp, String membershipCounter) {
         this.nodeIp = nodeIp;
         this.membershipCounter = membershipCounter;
+    }
+
+    @Override
+    public String toNetworkString() {
+        return String.format("%s;%s%s", nodeIp, membershipCounter, endOfLine);
     }
 
     @Override
