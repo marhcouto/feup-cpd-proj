@@ -10,6 +10,7 @@ public class Store {
         Node node;
         try {
             node = Node.FromArguments(args);
+            node.join();
         } catch (InvalidArgumentsException e) {
             System.out.println(e);
             System.out.println(Node.usage());

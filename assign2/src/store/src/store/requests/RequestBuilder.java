@@ -3,7 +3,7 @@ package store.requests;
 import java.nio.charset.StandardCharsets;
 
 public class RequestBuilder {
-    StringBuilder message;
+    StringBuilder message = new StringBuilder();
     String body;
 
     public RequestBuilder(RequestType requestType) {

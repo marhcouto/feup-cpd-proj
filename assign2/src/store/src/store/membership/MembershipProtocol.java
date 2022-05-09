@@ -11,6 +11,8 @@ public class MembershipProtocol {
     private ServerSocket membershipSocket;
     private MulticastSocket joinSocket;
 
+    private InetSocketAddress group;
+
     private int nodeLogMessagesReceived = 0;
     private int mcastJoinMessagesSent = 0;
     private MembershipLogger membershipLogger;
@@ -19,24 +21,32 @@ public class MembershipProtocol {
 
     public MembershipProtocol(MembershipLogger logger, String mcastIp, int mcastPort, String nodeIp, int nodePort) throws IOException {
         membershipSocket = new ServerSocket(nodePort);
-        joinSocket = new MulticastSocket(mcastPort);
-        joinSocket.joinGroup(new InetSocketAddress(mcastIp, mcastPort), NetworkInterface.getByName("eth0"));
+        joinSocket = new MulticastSocket();
+        group = new InetSocketAddress(mcastIp, mcastPort);
+        joinSocket.joinGroup(group, NetworkInterface.getByName("eth0"));
         membershipLogger = logger;
         joinMessage = new JoinMessage(mcastPort, logger.getMembershipCounter());
     }
 
     public void performJoin() throws IOException{
         membershipSocket.setSoTimeout(MEMBERSHIP_TIMEOUT);
-        sendJoinMessage();
         while(mcastJoinMessagesSent < 3) {
             nodeLogMessagesReceived = 0;
-            Socket socket = membershipSocket.accept();
-            new Thread() {
-                @Override
-                public void run() {
-
+            sendJoinMessage();
+            while (nodeLogMessagesReceived < 3) {
+                try {
+                    Socket socket = membershipSocket.accept();
+                    nodeLogMessagesReceived++;
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            System.out.println("Received Message");
+                        }
+                    }.start();
+                } catch (SocketTimeoutException e) {
+                    break;
                 }
-            }.start();
+            }
         }
     }
 
@@ -51,7 +61,7 @@ public class MembershipProtocol {
         }
         mcastJoinMessagesSent++;
         byte[] joinRequest = new RequestBuilder(RequestType.JOIN).addBody(joinMessage.toNetworkString()).toBytes();
-        DatagramPacket msgPacket = new DatagramPacket(joinRequest, joinRequest.length);
+        DatagramPacket msgPacket = new DatagramPacket(joinRequest, joinRequest.length, group.getAddress(), group.getPort());
         joinSocket.send(msgPacket);
     }
 }
