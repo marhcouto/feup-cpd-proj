@@ -16,8 +16,13 @@ public class Log implements FileStorable, NetworkSerializable {
         return String.format("%s;%s%s", nodeIp, membershipCounter, endOfLine);
     }
 
+    public static Log fromString(String logFileString) {
+        String[] elems = logFileString.split(";");
+        return new Log(elems[0], elems[1]);
+    }
+
     @Override
     public String toFile() {
-        return String.format("%s,%s", nodeIp, membershipCounter);
+        return String.format("%s;%s%s", nodeIp, membershipCounter, endOfLine);
     }
 }
