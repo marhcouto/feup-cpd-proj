@@ -1,11 +1,6 @@
 package utils;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.IntFunction;
-import java.util.function.Predicate;
-import java.util.function.UnaryOperator;
-import java.util.stream.Stream;
 
 public class FixedSizeCircularArray<E> {
     private List<E> internalArray = new ArrayList<>();

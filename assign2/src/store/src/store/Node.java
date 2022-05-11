@@ -2,6 +2,7 @@ package store;
 
 import store.membership.MembershipProtocol;
 import store.membership.filesystem.MembershipLogger;
+import utils.InvalidArgumentsException;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,7 +26,7 @@ public class Node {
     }
 
     public static String usage() {
-        return "Usage: java Store <IP_mcast_addr> <IP_mcast_port> <node_id>  <Store_port>";
+        return "Usage: java store.Store <IP_mcast_addr> <IP_mcast_port> <node_id>  <Store_port>";
     }
 
     public static Node FromArguments(String[] args) throws InvalidArgumentsException, IOException {

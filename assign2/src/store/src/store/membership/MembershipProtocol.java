@@ -38,7 +38,7 @@ public class MembershipProtocol {
                     Socket socket = membershipSocket.accept();
                     nodeLogMessagesReceived++;
                     new Thread(() -> {
-
+                        
                     }).start();
                 } catch (SocketTimeoutException e) {
                     break;

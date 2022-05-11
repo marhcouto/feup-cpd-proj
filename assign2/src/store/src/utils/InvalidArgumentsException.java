@@ -1,7 +1,7 @@
-package store;
+package utils;
 
 public class InvalidArgumentsException extends Exception {
-    InvalidArgumentsException(String message) {
+    public InvalidArgumentsException(String message) {
         super(message);
     }
 }
