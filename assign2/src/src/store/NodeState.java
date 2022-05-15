@@ -1,11 +1,11 @@
 package store;
 
-import store.membership.MembershipProtocol;
 import store.membership.filesystem.MembershipLogger;
 import utils.InvalidArgumentsException;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 
 public class NodeState {
@@ -15,6 +15,8 @@ public class NodeState {
     private InetAddress mCastIpAddress;
     private int mCastPort;
     private int storePort;
+
+    private InetSocketAddress tcpDataConnectionAddress;
     private MembershipLogger membershipLogger;
 
     private NodeState(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) throws IOException {
@@ -22,6 +24,7 @@ public class NodeState {
         this.mCastIpAddress = mCastIpAddress;
         this.mCastPort = mCastPort;
         this.storePort = storePort;
+        tcpDataConnectionAddress = new InetSocketAddress(nodeId, storePort);
         this.membershipLogger = new MembershipLogger(nodeId);
     }
 
@@ -59,7 +62,7 @@ public class NodeState {
         return new NodeState(nodeId, mCastIpAddress, mCastPort, storePort);
     }
 
-    public void join() throws IOException {
-        new MembershipProtocol(membershipLogger, mCastIpAddress.getHostAddress(), mCastPort, nodeId, storePort).performJoin();
+    public InetSocketAddress getTcpDataConnectionAddress() {
+        return tcpDataConnectionAddress;
     }
 }
