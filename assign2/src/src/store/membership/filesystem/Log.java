@@ -1,8 +1,9 @@
 package store.membership.filesystem;
 
-import store.coms.NetworkSerializable;
+import requests.NetworkSerializable;
+import requests.exceptions.InvalidByteArray;
 
-public class Log implements FileStorable, NetworkSerializable {
+public class Log extends NetworkSerializable<Log> implements FileStorable {
     private String nodeIp;
     private String membershipCounter;
 
@@ -12,8 +13,13 @@ public class Log implements FileStorable, NetworkSerializable {
     }
 
     @Override
-    public String toNetworkString() {
-        return String.format("%s;%s%s", nodeIp, membershipCounter, endOfLine);
+    public Log fromNetworkBytes(byte[] networkBytes) throws InvalidByteArray {
+        return null;
+    }
+
+    @Override
+    public byte[] toNetworkBytes() {
+        return new byte[0];
     }
 
     public static Log fromString(String logFileString) {

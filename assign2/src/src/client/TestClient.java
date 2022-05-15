@@ -18,7 +18,7 @@ public class TestClient {
         switch (args[1]) {
             case "join" -> new JoinMode(nodeAp).execute();
             case "leave" -> new LeaveMode(nodeAp).execute();
-            case "get" -> new GetMode().execute();
+            case "get" -> new GetMode(nodeAp, args[2]).execute();
             case "put" -> new PutMode().execute();
             case "delete" -> new DeleteMode().execute();
         }
