@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 public class GetRequestHandler implements RequestHandler {
     @Override
-    public void execute(InputStream messageStream) throws IOException {
-        GetRequest request = GetRequest.fromNetworkStream(messageStream);
+    public void execute(String[] headers) throws IOException {
+        GetRequest request = GetRequest.fromNetworkStream(headers);
     }
 }

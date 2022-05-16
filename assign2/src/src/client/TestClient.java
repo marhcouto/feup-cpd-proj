@@ -10,17 +10,21 @@ public class TestClient {
             printUsage();
             return;
         }
-        String nodeAp = args[0];
-        if (nodeAp.split(":").length != 2) {
-            System.out.println("Invalid node access point");
-            printUsage();
-        }
-        switch (args[1]) {
-            case "join" -> new JoinMode(nodeAp).execute();
-            case "leave" -> new LeaveMode(nodeAp).execute();
-            case "get" -> new GetMode(nodeAp, args[2]).execute();
-            case "put" -> new PutMode().execute();
-            case "delete" -> new DeleteMode().execute();
+        try {
+            String nodeAp = args[0];
+            if (nodeAp.split(":").length != 2) {
+                System.out.println("Invalid node access point");
+                printUsage();
+            }
+            switch (args[1]) {
+                case "join" -> new JoinMode(nodeAp).execute();
+                case "leave" -> new LeaveMode(nodeAp).execute();
+                case "get" -> new GetMode(nodeAp, args[2]).execute();
+                case "put" -> new PutMode(nodeAp, args[2]).execute();
+                case "delete" -> new DeleteMode().execute();
+            }
+        } catch (InvalidArgumentsException e) {
+            System.out.println(e.getMessage());
         }
     }
 

@@ -11,17 +11,20 @@ import java.net.Socket;
 public class DispatchClientRequestTask implements Runnable {
     private final Socket clientSocket;
     private final NodeState nodeState;
+    private InputStream is;
 
     public DispatchClientRequestTask(NodeState nodeState, Socket clientSocket) {
         this.clientSocket = clientSocket;
         this.nodeState = nodeState;
     }
 
-    private RequestHandler getRequestHandler(InputStream messageBuffer) throws IOException, InvalidByteArray {
-        String requestType = NetworkSerializable.readLine(messageBuffer);
+    private RequestHandler getRequestHandler(String requestType) throws IOException, InvalidByteArray {
         switch (requestType) {
             case RequestType.PUT -> {
-                return new PutRequestHandler(nodeState);
+                return new PutRequestHandler(nodeState, is);
+            }
+            case RequestType.GET -> {
+                return new GetRequestHandler();
             }
             default -> throw new InvalidByteArray("Request type not recognized");
         }
@@ -30,7 +33,10 @@ public class DispatchClientRequestTask implements Runnable {
     @Override
     public void run() {
         try {
-            RequestHandler requestHandler = getRequestHandler(clientSocket.getInputStream());
+            is = clientSocket.getInputStream();
+            String[] headers = NetworkSerializable.getLines(is);
+            RequestHandler requestHandler = getRequestHandler(headers[0]);
+            requestHandler.execute(headers);
             clientSocket.close();
         } catch (InvalidByteArray e) {
             e.printStackTrace();

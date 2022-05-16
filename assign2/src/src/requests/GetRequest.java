@@ -28,8 +28,7 @@ public class GetRequest extends NetworkSerializable{
         outputStream.write(header.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static GetRequest fromNetworkStream(InputStream inputStream) throws IOException {
-        String key = NetworkSerializable.readLine(inputStream);
-        return new GetRequest(key);
+    public static GetRequest fromNetworkStream(String[] headers) throws IOException {
+        return new GetRequest(headers[1]);
     }
 }
