@@ -38,6 +38,6 @@ public class StoreServiceProvider {
     }
 
     public void setupDataService() throws IOException {
-        new DataServiceThread(nodeState.getTcpDataConnectionAddress().getHostString(), nodeState.getTcpDataConnectionAddress().getPort()).start();
+        new DataServiceThread(nodeState).start();
     }
 }

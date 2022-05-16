@@ -1,7 +1,6 @@
 package store.membership;
 
 import store.membership.filesystem.MembershipLogger;
-import requests.RequestBuilder;
 import requests.RequestType;
 import java.io.IOException;
 import java.net.*;

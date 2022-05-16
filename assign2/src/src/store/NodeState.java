@@ -65,4 +65,8 @@ public class NodeState {
     public InetSocketAddress getTcpDataConnectionAddress() {
         return tcpDataConnectionAddress;
     }
+
+    public String getNodeId() {
+        return nodeId;
+    }
 }

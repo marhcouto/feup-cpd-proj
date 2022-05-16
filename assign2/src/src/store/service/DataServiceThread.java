@@ -1,5 +1,6 @@
 package store.service;
 
+import store.NodeState;
 import store.requests.DispatchClientRequestTask;
 
 import java.io.IOException;
@@ -13,24 +14,22 @@ import java.util.concurrent.Executors;
 public class DataServiceThread extends Thread {
     ExecutorService requestDispatchers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
     private ServerSocket serverSocket;
-    private final String host;
-    private final int port;
+    private final NodeState nodeState;
 
 
-    public DataServiceThread(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public DataServiceThread(NodeState nodeState) {
+        this.nodeState = nodeState;
     }
 
     @Override
     public void run() {
         try {
             serverSocket = new ServerSocket();
-            serverSocket.bind(new InetSocketAddress(host, port));
+            serverSocket.bind(new InetSocketAddress(nodeState.getTcpDataConnectionAddress().getHostString(), nodeState.getTcpDataConnectionAddress().getPort()));
             while(!Thread.interrupted()) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Received new connection");
-                requestDispatchers.execute(new DispatchClientRequestTask(socket));
+                requestDispatchers.execute(new DispatchClientRequestTask(nodeState, socket));
             }
         } catch (IOException e) {
             System.out.println("Failed to open TCP server socket to listen to clients");

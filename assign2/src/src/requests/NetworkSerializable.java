@@ -2,19 +2,32 @@ package requests;
 
 import requests.exceptions.InvalidByteArray;
 
-public abstract class NetworkSerializable<T> {
+import java.io.*;
+
+public abstract class NetworkSerializable {
+
+    private static final int MAX_TEXT_LINE_SIZE = 256;
     protected final String endOfLine = "\r\n";
 
-    protected int findEndOfHeader(byte[] byteArr) {
-        for (int i = 0; i < byteArr.length - 3; i++) {
-            if (byteArr[i] == '\r' && byteArr[i + 1] == '\n' && byteArr[i + 2] == '\r' && byteArr[i + 3] == '\n') {
-                return i + 1;
+    public static String readLine(InputStream is) throws IOException {
+        char[] lineBuffer = new char[MAX_TEXT_LINE_SIZE];
+        InputStreamReader inputStreamReader = new InputStreamReader(is);
+        int curLineBufferIndex = 0;
+        char lastChar = '\0';
+        while (true) {
+            int charInt = inputStreamReader.read();
+            if (charInt == -1) {
+                return null;
+            }
+            char curChar = (char) charInt;
+            if (curChar == '\n' && lastChar == '\r') {
+                return new String(lineBuffer);
+            } else if (curLineBufferIndex < MAX_TEXT_LINE_SIZE) {
+                lastChar = curChar;
+                lineBuffer[curLineBufferIndex++] = curChar;
             }
         }
-        return -1;
     }
 
-    public abstract byte[] toNetworkBytes();
-
-    public abstract T fromNetworkBytes(byte[] networkBytes) throws InvalidByteArray;
+    public abstract void send(OutputStream outputStream) throws IOException;
 }

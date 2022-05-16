@@ -19,7 +19,7 @@ public class GetMode extends TcpMode {
             OutputStream os = socket.getOutputStream();
             InputStream is = socket.getInputStream();
             GetRequest request = new GetRequest(key);
-            os.write(request.toNetworkBytes());
+
             byte[] res = is.readAllBytes();
             System.out.println(new String(res, StandardCharsets.UTF_8));
             socket.close();
