@@ -15,14 +15,14 @@ import java.util.List;
  */
 public class NodeState {
     public static final int EXPECTED_NUM_ARGS = 4;
-    private State state = State.WAIT;
-    private String nodeId;
-    private InetAddress mCastIpAddress;
-    private int mCastPort;
-    private int storePort;
+    private final State state = State.WAIT;
+    private final String nodeId;
+    private final InetAddress mCastIpAddress;
+    private final int mCastPort;
+    private final int storePort;
 
-    private InetSocketAddress tcpDataConnectionAddress;
-    private MembershipLogger membershipLogger;
+    private final InetSocketAddress tcpDataConnectionAddress;
+    private final MembershipLogger membershipLogger;
 
     private NodeState(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) throws IOException {
         this.nodeId = nodeId;
