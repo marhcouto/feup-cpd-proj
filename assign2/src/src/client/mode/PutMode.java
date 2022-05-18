@@ -43,7 +43,7 @@ public class PutMode extends TcpMode {
             algorithm.reset();
             DigestInputStream digest = new DigestInputStream(
                     new FileInputStream(
-                            new File(this.filePath.toString())
+                        new File(this.filePath.toString())
                     ),
                     algorithm
             );

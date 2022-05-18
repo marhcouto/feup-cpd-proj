@@ -1,6 +1,6 @@
 package store.service;
 
-import store.NodeState;
+import store.state.NodeState;
 import store.requests.DispatchClientRequestTask;
 
 import java.io.IOException;

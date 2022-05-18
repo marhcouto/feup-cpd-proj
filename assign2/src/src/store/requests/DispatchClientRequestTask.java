@@ -3,7 +3,7 @@ package store.requests;
 import requests.NetworkSerializable;
 import requests.RequestType;
 import requests.exceptions.InvalidByteArray;
-import store.NodeState;
+import store.state.NodeState;
 
 import java.io.*;
 import java.net.Socket;
@@ -41,11 +41,13 @@ public class DispatchClientRequestTask implements Runnable {
         } catch (InvalidByteArray e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.println("Error communicating with client");
         } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {
+                e.printStackTrace();
                 System.out.println("Error closing client socket");
             }
         }

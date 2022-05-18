@@ -1,6 +1,7 @@
-package store;
+package store.state;
 
 import requests.NetworkRequest;
+import store.State;
 import store.membership.filesystem.MembershipLogger;
 import store.membership.filesystem.Neighbour;
 import utils.InvalidArgumentsException;
@@ -14,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -93,25 +94,28 @@ public class NodeState {
         );
     }
 
-    public Neighbour findNearestNeighbour(NetworkRequest request) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        BigInteger curNodeHash = new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.UTF_8)));
-        Stream<BigInteger> neighbourStream = getNeighbourNodes().stream().map((neighbour) -> {
-            return new BigInteger(1, digest.digest(neighbour.getNodeId().getBytes(StandardCharsets.UTF_8)));
-        });
-        List<BigInteger> neighbourHashes = Stream.concat(neighbourStream, Stream.of(curNodeHash)).sorted().toList();
-        BigInteger requestHash = new BigInteger(1, digest.digest(request.getKey().getBytes(StandardCharsets.UTF_8)));
-        for (int i = 1; i < neighbourHashes.size(); i++) {
-            BigInteger curHash = neighbourHashes.get(i);
-            BigInteger antHash = neighbourHashes.get(i - 1);
-            if (requestHash.compareTo(curHash) < 0 && requestHash.compareTo(antHash) >= 0) {
-                if (curHash.equals(curNodeHash)) {
-                    return new Neighbour(getNodeId(), "-1");
+    public String findNearestNeighbour(NetworkRequest request) throws NoSuchAlgorithmException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            List<HashedNodeWrapper> neighbourHashes = getNeighbourNodes().stream().map((neighbour -> { return new HashedNodeWrapper(neighbour.getNodeId(), new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.UTF_8)))); })).sorted(new Comparator<HashedNodeWrapper>() {
+                @Override
+                public int compare(HashedNodeWrapper o1, HashedNodeWrapper o2) {
+                    return o1.nodeHash().compareTo(o2.nodeHash());
                 }
-                return getNeighbourNodes().get(i);
+            }).toList();
+            BigInteger requestHash = new BigInteger(1, digest.digest(request.getKey().getBytes(StandardCharsets.UTF_8)));
+            for (int i = 1; i < neighbourHashes.size(); i++) {
+                BigInteger curHash = neighbourHashes.get(i).nodeHash();
+                BigInteger antHash = neighbourHashes.get(i - 1).nodeHash();
+                if (requestHash.compareTo(curHash) < 0 && requestHash.compareTo(antHash) >= 0) {
+                    return neighbourHashes.get(i).nodeId();
+                }
             }
+            //If it arrives here the circular list was all traversed and the next node is the starting node
+            return neighbourHashes.get(0).nodeId();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
         }
-        //If it arrives here the circular list was all traversed and the next node is the starting node
-        return getNeighbourNodes().get(0);
+        return null;
     }
 }

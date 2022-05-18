@@ -2,7 +2,7 @@ package store.service;
 
 import rmi.MembershipCommands;
 import rmi.RMIConstants;
-import store.NodeState;
+import store.state.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;

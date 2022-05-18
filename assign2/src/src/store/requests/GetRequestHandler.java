@@ -1,10 +1,8 @@
 package store.requests;
 
 import requests.GetRequest;
-import store.NodeState;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 public class GetRequestHandler implements RequestHandler {
 

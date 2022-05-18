@@ -1,6 +1,7 @@
 package store;
 
 import store.service.StoreServiceProvider;
+import store.state.NodeState;
 import utils.InvalidArgumentsException;
 
 import java.io.IOException;

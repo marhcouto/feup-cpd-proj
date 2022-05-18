@@ -51,11 +51,13 @@ public class PutRequest extends NetworkSerializable implements NetworkRequest {
         String key = headers[1];
         int fileSize = Integer.parseInt(headers[2]);
         Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, key));
-        Files.createFile(filePath);
+        if (!Files.isRegularFile(filePath)) {
+            Files.createFile(filePath);
+        }
         byte[] readerBuffer = new byte[4096];
-        int readBytes;
+        int readBytes = 0;
         FileOutputStream fs = new FileOutputStream(new File(filePath.toString()));
-        while((readBytes = fileStream.read(readerBuffer)) != -1) {
+        while((readBytes < fileSize) && ((readBytes = fileStream.read(readerBuffer)) != -1)) {
             fs.write(readerBuffer, 0, readBytes);
         }
         fs.close();
