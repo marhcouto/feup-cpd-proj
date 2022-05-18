@@ -21,10 +21,10 @@ public class DispatchClientRequestTask implements Runnable {
     private RequestHandler getRequestHandler(String requestType) throws IOException, InvalidByteArray {
         switch (requestType) {
             case RequestType.PUT -> {
-                return new PutRequestHandler(nodeState, is);
+                return new PutRequestHandler(nodeState, clientSocket.getOutputStream(), is);
             }
             case RequestType.GET -> {
-                return new GetRequestHandler();
+                return null;
             }
             default -> throw new InvalidByteArray("Request type not recognized");
         }

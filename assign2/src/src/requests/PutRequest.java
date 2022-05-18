@@ -6,7 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class PutRequest extends NetworkSerializable{
+public class PutRequest extends NetworkSerializable implements NetworkRequest {
     private String fileKey;
     private String filePath;
     private int fileSize;
@@ -16,6 +16,19 @@ public class PutRequest extends NetworkSerializable{
         System.out.println(filePath);
         this.fileKey = fileKey;
         this.filePath = filePath;
+    }
+
+    @Override
+    public String getKey() {
+        return fileKey;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public int getFileSize() {
+        return fileSize;
     }
 
     @Override

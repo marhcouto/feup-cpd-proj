@@ -14,6 +14,9 @@ public class Store {
         } catch (InvalidArgumentsException invalidArgumentsException) {
             System.out.println(NodeState.usage());
         }
-        System.in.read();
+        try {
+            // 292 billion years seems enough
+            Thread.sleep(Long.MAX_VALUE);
+        } catch (InterruptedException e) { /* Just stop the program */}
     }
 }

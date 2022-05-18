@@ -1,14 +1,22 @@
 package store;
 
+import requests.NetworkRequest;
 import store.membership.filesystem.MembershipLogger;
 import store.membership.filesystem.Neighbour;
 import utils.InvalidArgumentsException;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /*
     This class represents the state of the current node
@@ -77,6 +85,33 @@ public class NodeState {
 
     public List<Neighbour> getNeighbourNodes() {
         //TODO: Implement this function that must return all the neighbours of the current node
-        return null;
+        return Arrays.asList(
+            new Neighbour("127.0.0.2", "2"),
+            new Neighbour("127.0.0.3", "3"),
+            new Neighbour("127.0.0.4", "4"),
+            new Neighbour("127.0.0.5", "5")
+        );
+    }
+
+    public Neighbour findNearestNeighbour(NetworkRequest request) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        BigInteger curNodeHash = new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.UTF_8)));
+        Stream<BigInteger> neighbourStream = getNeighbourNodes().stream().map((neighbour) -> {
+            return new BigInteger(1, digest.digest(neighbour.getNodeId().getBytes(StandardCharsets.UTF_8)));
+        });
+        List<BigInteger> neighbourHashes = Stream.concat(neighbourStream, Stream.of(curNodeHash)).sorted().toList();
+        BigInteger requestHash = new BigInteger(1, digest.digest(request.getKey().getBytes(StandardCharsets.UTF_8)));
+        for (int i = 1; i < neighbourHashes.size(); i++) {
+            BigInteger curHash = neighbourHashes.get(i);
+            BigInteger antHash = neighbourHashes.get(i - 1);
+            if (requestHash.compareTo(curHash) < 0 && requestHash.compareTo(antHash) >= 0) {
+                if (curHash.equals(curNodeHash)) {
+                    return new Neighbour(getNodeId(), "-1");
+                }
+                return getNeighbourNodes().get(i);
+            }
+        }
+        //If it arrives here the circular list was all traversed and the next node is the starting node
+        return getNeighbourNodes().get(0);
     }
 }
