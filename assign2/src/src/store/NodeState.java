@@ -1,13 +1,18 @@
 package store;
 
 import store.membership.filesystem.MembershipLogger;
+import store.membership.filesystem.Neighbour;
 import utils.InvalidArgumentsException;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
+/*
+    This class represents the state of the current node
+ */
 public class NodeState {
     public static final int EXPECTED_NUM_ARGS = 4;
     private State state = State.WAIT;
@@ -68,5 +73,10 @@ public class NodeState {
 
     public String getNodeId() {
         return nodeId;
+    }
+
+    public List<Neighbour> getNeighbourNodes() {
+        //TODO: Implement this function that must return all the neighbours of the current node
+        return null;
     }
 }

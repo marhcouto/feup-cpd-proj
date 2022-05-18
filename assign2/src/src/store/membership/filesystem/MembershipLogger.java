@@ -10,7 +10,7 @@ import java.nio.file.StandardOpenOption;
 
 public class MembershipLogger {
     int memoryStoredLogs = 0;
-    FixedSizeCircularArray<Log> latestLogs = new FixedSizeCircularArray<>(32);
+    FixedSizeCircularArray<Neighbour> latestLogs = new FixedSizeCircularArray<>(32);
     private String nodeFsRoot;
     private int membershipCounter;
 
@@ -31,7 +31,7 @@ public class MembershipLogger {
                 .get()[0]);
         path = Paths.get(nodeFsRoot + MembershipFiles.MEMBERSHIP_LOG);
         if (Files.isRegularFile(path)) {
-            Files.lines(path).forEachOrdered(line -> latestLogs.add(Log.fromString(line)));
+            Files.lines(path).forEachOrdered(line -> latestLogs.add(Neighbour.fromString(line)));
             System.out.println(latestLogs.toString());
         }
     }
@@ -45,12 +45,12 @@ public class MembershipLogger {
         Files.writeString(path, Integer.valueOf(++membershipCounter).toString());
     }
 
-    public void storeLog(Log log) throws IOException {
+    public void storeLog(Neighbour neighbour) throws IOException {
         Path path = Paths.get(nodeFsRoot + MembershipFiles.MEMBERSHIP_LOG);
         if (!Files.isRegularFile(path)) {
             Files.createFile(path);
         }
-        Files.writeString(path, String.format("%s\n", log.toFile()), StandardOpenOption.APPEND);
-        latestLogs.add(log);
+        Files.writeString(path, String.format("%s\n", neighbour.toFile()), StandardOpenOption.APPEND);
+        latestLogs.add(neighbour);
     }
 }
