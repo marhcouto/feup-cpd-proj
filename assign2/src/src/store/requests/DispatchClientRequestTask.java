@@ -34,7 +34,7 @@ public class DispatchClientRequestTask implements Runnable {
     public void run() {
         try {
             is = clientSocket.getInputStream();
-            String[] headers = NetworkSerializable.getLines(is);
+            String[] headers = NetworkSerializable.getHeader(is);
             RequestHandler requestHandler = getRequestHandler(headers[0]);
             requestHandler.execute(headers);
             clientSocket.close();

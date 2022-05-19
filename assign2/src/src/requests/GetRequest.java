@@ -24,7 +24,8 @@ public class GetRequest extends NetworkSerializable{
     @Override
     public void send(OutputStream outputStream) throws IOException{
         String header = RequestType.GET + endOfLine +
-            key + endOfLine;
+            key + endOfLine
+            + endOfLine;
         outputStream.write(header.getBytes(StandardCharsets.UTF_8));
     }
 

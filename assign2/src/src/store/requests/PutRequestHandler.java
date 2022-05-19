@@ -34,12 +34,8 @@ public class PutRequestHandler implements RequestHandler {
                 Socket neighbourNode = new Socket(neighbourId, 3000);
                 request.send(neighbourNode.getOutputStream());
                 //Pipes response into client socket
-                byte[] humanReadableResponse = new byte[1024];
-                int readBytes;
-                while ((readBytes = neighbourNode.getInputStream().read(humanReadableResponse)) != -1) {
-                    responseStream.write(Arrays.copyOfRange(humanReadableResponse, 0, readBytes));
-                    Files.delete(Paths.get(request.getFilePath()));
-                }
+                neighbourNode.getInputStream().transferTo(responseStream);
+                Files.delete(Paths.get(request.getFilePath()));
                 neighbourNode.close();
             }
         } catch (NoSuchAlgorithmException e) {
