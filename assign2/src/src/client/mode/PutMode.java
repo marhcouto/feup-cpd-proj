@@ -51,12 +51,7 @@ public class PutMode extends TcpMode {
             PutRequest putRequest = new PutRequest(bytesToHex(algorithm.digest()), filePath.toString());
             Socket clientSocket = new Socket(getHost(), getPort());
             putRequest.send(clientSocket.getOutputStream());
-            byte[] response = new byte[1024];
-            int readMessage;
-            InputStream is = clientSocket.getInputStream();
-            while((readMessage = is.read(response)) != -1) {
-                System.out.println(new String(Arrays.copyOfRange(response, 0, readMessage), StandardCharsets.UTF_8));
-            }
+            clientSocket.getInputStream().transferTo(System.out);
             clientSocket.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -12,24 +12,18 @@ import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
-public class PutRequestHandler implements RequestHandler {
-    private final InputStream fileStream;
-    private final OutputStream responseStream;
-    private final NodeState state;
-
-    public PutRequestHandler(NodeState state, OutputStream responseStream, InputStream fileStream) {
-        this.state = state;
-        this.fileStream = fileStream;
-        this.responseStream = responseStream;
+public class PutRequestHandler extends RequestHandler {
+    public PutRequestHandler(NodeState state) {
+        super(state);
     }
 
     @Override
-    public void execute(String[] headers) throws IOException {
-        PutRequest request = PutRequest.fromNetworkStream(state.getNodeId(), headers, fileStream);
+    public void execute(String[] headers, OutputStream responseStream, InputStream clientStream) throws IOException {
+        PutRequest request = PutRequest.fromNetworkStream(getNodeState().getNodeId(), headers, clientStream);
         try {
-            String neighbourId = state.findNearestNeighbour(request);
-            if (neighbourId.equals(state.getNodeId())) {
-                responseStream.write("Success: File was stored".getBytes(StandardCharsets.UTF_8));
+            String neighbourId = getNodeState().findNearestNeighbour(request);
+            if (neighbourId.equals(getNodeState().getNodeId())) {
+                responseStream.write("Success: File was stored\n".getBytes(StandardCharsets.UTF_8));
             } else {
                 Socket neighbourNode = new Socket(neighbourId, 3000);
                 request.send(neighbourNode.getOutputStream());
