@@ -3,7 +3,7 @@ package store.requests;
 import requests.NetworkSerializable;
 import requests.RequestType;
 import requests.exceptions.InvalidByteArray;
-import store.NodeState;
+import store.state.NodeState;
 
 import java.io.*;
 import java.net.Socket;
@@ -11,7 +11,6 @@ import java.net.Socket;
 public class DispatchClientRequestTask implements Runnable {
     private final Socket clientSocket;
     private final NodeState nodeState;
-    private InputStream is;
 
     public DispatchClientRequestTask(NodeState nodeState, Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -21,10 +20,13 @@ public class DispatchClientRequestTask implements Runnable {
     private RequestHandler getRequestHandler(String requestType) throws IOException, InvalidByteArray {
         switch (requestType) {
             case RequestType.PUT -> {
-                return new PutRequestHandler(nodeState, is);
+                return new PutRequestHandler(nodeState);
             }
             case RequestType.GET -> {
-                return new GetRequestHandler();
+                return new GetRequestHandler(nodeState);
+            }
+            case RequestType.DELETE -> {
+                return new DeleteRequestHandler(nodeState);
             }
             default -> throw new InvalidByteArray("Request type not recognized");
         }
@@ -33,19 +35,20 @@ public class DispatchClientRequestTask implements Runnable {
     @Override
     public void run() {
         try {
-            is = clientSocket.getInputStream();
-            String[] headers = NetworkSerializable.getLines(is);
+            InputStream inputStream = clientSocket.getInputStream();
+            String[] headers = NetworkSerializable.getHeader(inputStream);
             RequestHandler requestHandler = getRequestHandler(headers[0]);
-            requestHandler.execute(headers);
-            clientSocket.close();
+            requestHandler.execute(headers, clientSocket.getOutputStream(), inputStream);
         } catch (InvalidByteArray e) {
             e.printStackTrace();
         } catch (IOException e) {
+            e.printStackTrace();
             System.out.println("Error communicating with client");
         } finally {
             try {
                 clientSocket.close();
             } catch (IOException e) {
+                e.printStackTrace();
                 System.out.println("Error closing client socket");
             }
         }

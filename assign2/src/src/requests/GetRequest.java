@@ -10,7 +10,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class GetRequest extends NetworkSerializable{
+public class GetRequest extends NetworkSerializable implements NetworkRequest {
     private final String key;
 
     public GetRequest(String key) {
@@ -24,11 +24,12 @@ public class GetRequest extends NetworkSerializable{
     @Override
     public void send(OutputStream outputStream) throws IOException{
         String header = RequestType.GET + endOfLine +
-            key + endOfLine;
+            key + endOfLine
+            + endOfLine;
         outputStream.write(header.getBytes(StandardCharsets.UTF_8));
     }
 
-    public static GetRequest fromNetworkStream(String[] headers) throws IOException {
+    public static GetRequest fromNetworkStream(String[] headers) {
         return new GetRequest(headers[1]);
     }
 }

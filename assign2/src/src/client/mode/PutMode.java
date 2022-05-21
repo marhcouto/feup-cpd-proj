@@ -3,16 +3,15 @@ package client.mode;
 import requests.PutRequest;
 import utils.InvalidArgumentsException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
+import java.util.Arrays;
 
 public class PutMode extends TcpMode {
     private Path filePath;
@@ -44,7 +43,7 @@ public class PutMode extends TcpMode {
             algorithm.reset();
             DigestInputStream digest = new DigestInputStream(
                     new FileInputStream(
-                            new File(this.filePath.toString())
+                        new File(this.filePath.toString())
                     ),
                     algorithm
             );
@@ -52,6 +51,7 @@ public class PutMode extends TcpMode {
             PutRequest putRequest = new PutRequest(bytesToHex(algorithm.digest()), filePath.toString());
             Socket clientSocket = new Socket(getHost(), getPort());
             putRequest.send(clientSocket.getOutputStream());
+            clientSocket.getInputStream().transferTo(System.out);
             clientSocket.close();
         } catch (Exception e) {
             e.printStackTrace();

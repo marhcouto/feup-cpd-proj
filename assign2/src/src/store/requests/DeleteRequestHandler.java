@@ -1,6 +1,6 @@
 package store.requests;
 
-import requests.GetRequest;
+import requests.DeleteRequest;
 import store.state.NodeState;
 
 import java.io.IOException;
@@ -13,14 +13,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 
-public class GetRequestHandler extends RequestHandler {
-    public GetRequestHandler(NodeState nodeState) {
-        super(nodeState);
+public class DeleteRequestHandler extends RequestHandler {
+    public DeleteRequestHandler(NodeState state) {
+        super(state);
     }
 
     @Override
     void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
-        GetRequest request = GetRequest.fromNetworkStream(headers);
+        DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", getNodeState().getNodeId(), request.getKey()));
         try {
             String neighbourId = getNodeState().findNearestNeighbour(request);
@@ -28,7 +28,8 @@ public class GetRequestHandler extends RequestHandler {
                 if (!Files.exists(filePath)) {
                     responseStream.write("ERROR: Key not found\n".getBytes(StandardCharsets.UTF_8));
                 } else {
-                    Files.copy(filePath, responseStream);
+                    Files.delete(filePath);
+                    responseStream.write("SUCCESS: File was found and deleted".getBytes(StandardCharsets.UTF_8));
                 }
             } else {
                 Socket neighbourSocket = new Socket(neighbourId, 3000);

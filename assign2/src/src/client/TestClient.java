@@ -21,7 +21,7 @@ public class TestClient {
                 case "leave" -> new LeaveMode(nodeAp).execute();
                 case "get" -> new GetMode(nodeAp, args[2]).execute();
                 case "put" -> new PutMode(nodeAp, args[2]).execute();
-                case "delete" -> new DeleteMode().execute();
+                case "delete" -> new DeleteMode(nodeAp, args[2]).execute();
             }
         } catch (InvalidArgumentsException e) {
             System.out.println(e.getMessage());

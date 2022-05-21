@@ -19,10 +19,8 @@ public class GetMode extends TcpMode {
             OutputStream os = socket.getOutputStream();
             InputStream is = socket.getInputStream();
             GetRequest request = new GetRequest(key);
-
-            byte[] res = is.readAllBytes();
-            System.out.println(new String(res, StandardCharsets.UTF_8));
-            socket.close();
+            request.send(os);
+            is.transferTo(System.out);
         } catch (Exception e) {
             e.printStackTrace();
         }
