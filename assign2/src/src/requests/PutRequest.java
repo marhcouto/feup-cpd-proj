@@ -44,7 +44,6 @@ public class PutRequest extends NetworkSerializable implements NetworkRequest {
         byte[] bodyBytes = new byte[4096];
         int totalReadFileBytes = 0;
         String key = headers[1];
-        System.out.println("KEY:" + key);
         long fileSize = Long.parseLong(headers[2]);
         Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, key));
         if (Files.exists(filePath)) {

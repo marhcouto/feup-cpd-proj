@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static utils.FileKeyCalculate.fileToKey;
+import static utils.NearestNeighbour.findNearestNeighbour;
 
 /*
     This class represents the state of the current node
@@ -91,48 +92,11 @@ public class NodeState {
         return nodeId;
     }
 
-    public List<Neighbour> getNeighbourNodes() {
-        //TODO: Implement this function that must return all the neighbours of the current node
-        return Arrays.asList(
-            new Neighbour("127.0.0.2", "2"),
-            new Neighbour("127.0.0.3", "3"),
-            new Neighbour("127.0.0.4", "4"),
-            new Neighbour("127.0.0.5", "5")
-        );
-    }
-
-    public String findNearestNeighbour(String key) {
-        // TODO: refactor - extract to another class
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            List<HashedNodeWrapper> neighbourHashes = getNeighbourNodes().stream().map((neighbour -> { return new HashedNodeWrapper(neighbour.getNodeId(), new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.UTF_8)))); })).sorted(new Comparator<HashedNodeWrapper>() {
-                @Override
-                public int compare(HashedNodeWrapper o1, HashedNodeWrapper o2) {
-                    return o1.nodeHash().compareTo(o2.nodeHash());
-                }
-            }).toList();
-            BigInteger requestHash = new BigInteger(1, digest.digest(key.getBytes(StandardCharsets.UTF_8)));
-            for (int i = 1; i < neighbourHashes.size(); i++) {
-                BigInteger curHash = neighbourHashes.get(i).nodeHash();
-                BigInteger antHash = neighbourHashes.get(i - 1).nodeHash();
-                if (requestHash.compareTo(curHash) < 0 && requestHash.compareTo(antHash) >= 0) {
-                    return neighbourHashes.get(i).nodeId();
-                }
-            }
-            //If it arrives here the circular list was all traversed and the next node is the starting node
-            return neighbourHashes.get(0).nodeId();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public List<File> getFiles() {
         List<File> files = new ArrayList<>();
         File dir = new File(String.format("store-persistent-storage/%s", nodeId));
         for (File file : Objects.requireNonNull(dir.listFiles())) {
             if (!file.getName().equals("membership_counter")) {
-                System.out.println("File name:" + file.getName());
                 files.add(new File(file.getName()));
             }
         }
@@ -143,13 +107,13 @@ public class NodeState {
         List<File> files = getFiles();
         for (File file : files) {
             // TODO: use algorithm to find nearest neighbour properly
-            String nearestNodeId = findNearestNeighbour(file.getName());
+            String nearestNodeId = findNearestNeighbour(file.getName(), nodeId);
             String filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, file.getName())).toString();
             PutRequest request = new PutRequest(fileToKey(new FileInputStream(filePath)), filePath);
-            System.out.println("Key:" + request.getKey());
-            Socket neighbourNode = new Socket("127.0.0.1", 3030);
+            Socket neighbourNode = new Socket(nearestNodeId, 3030);
             request.send(neighbourNode.getOutputStream());
             Files.delete(Paths.get(filePath));
+            neighbourNode.close();
         }
     }
 }

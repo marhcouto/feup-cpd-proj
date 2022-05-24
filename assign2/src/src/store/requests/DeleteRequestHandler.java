@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 
+import static utils.NearestNeighbour.findNearestNeighbour;
+
 public class DeleteRequestHandler extends RequestHandler {
     public DeleteRequestHandler(NodeState state) {
         super(state);
@@ -21,7 +23,7 @@ public class DeleteRequestHandler extends RequestHandler {
     @Override
     void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
-        String neighbourId = getNodeState().findNearestNeighbour(request.getKey());
+        String neighbourId = findNearestNeighbour(request.getKey());
         if (neighbourId.equals(getNodeState().getNodeId())) {
             Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", getNodeState().getNodeId(), request.getKey()));
             if (!Files.exists(filePath)) {
