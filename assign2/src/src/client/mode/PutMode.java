@@ -13,23 +13,15 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.Arrays;
 
+import static utils.FileKeyCalculate.fileToKey;
+
 public class PutMode extends TcpMode {
     private Path filePath;
 
-    private static String bytesToHex(byte[] hash) {
-        StringBuilder hexString = new StringBuilder(2 * hash.length);
-        for (byte b : hash) {
-            String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) {
-                hexString.append('0');
-            }
-            hexString.append(hex);
-        }
-        return hexString.toString();
-    }
-
     public PutMode(String nodeAp, String filePath) throws InvalidArgumentsException {
+        // TODO: filePath to fileName
         super(nodeAp);
+        System.out.println(filePath);
         this.filePath = Paths.get(filePath);
         if (!Files.isRegularFile(this.filePath)) {
             throw new InvalidArgumentsException("File specified in arguments does not exist");
@@ -39,16 +31,8 @@ public class PutMode extends TcpMode {
     @Override
     public void execute() {
         try {
-            MessageDigest algorithm = MessageDigest.getInstance("SHA-256");
-            algorithm.reset();
-            DigestInputStream digest = new DigestInputStream(
-                    new FileInputStream(
-                        new File(this.filePath.toString())
-                    ),
-                    algorithm
-            );
-            while(digest.read() != -1) {}
-            PutRequest putRequest = new PutRequest(bytesToHex(algorithm.digest()), filePath.toString());
+            System.out.println(fileToKey(new FileInputStream(filePath.toString())));
+            PutRequest putRequest = new PutRequest(fileToKey(new FileInputStream(filePath.toString())), filePath.toString());
             Socket clientSocket = new Socket(getHost(), getPort());
             putRequest.send(clientSocket.getOutputStream());
             clientSocket.getInputStream().transferTo(System.out);

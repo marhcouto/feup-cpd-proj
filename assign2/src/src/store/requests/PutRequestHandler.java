@@ -19,22 +19,18 @@ public class PutRequestHandler extends RequestHandler {
 
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientStream) throws IOException {
+        // TODO: change order of events to avoid saving and deletion
         PutRequest request = PutRequest.fromNetworkStream(getNodeState().getNodeId(), headers, clientStream);
-        try {
-            String neighbourId = getNodeState().findNearestNeighbour(request);
-            if (neighbourId.equals(getNodeState().getNodeId())) {
-                responseStream.write("Success: File was stored\n".getBytes(StandardCharsets.UTF_8));
-            } else {
-                Socket neighbourNode = new Socket(neighbourId, 3000);
-                request.send(neighbourNode.getOutputStream());
-                //Pipes response into client socket
-                neighbourNode.getInputStream().transferTo(responseStream);
-                Files.delete(Paths.get(request.getFilePath()));
-                neighbourNode.close();
-            }
-        } catch (NoSuchAlgorithmException e) {
-            //This shouldn't happen
-            e.printStackTrace();
+        String neighbourId = getNodeState().findNearestNeighbour(request.getKey());
+        if (neighbourId.equals(getNodeState().getNodeId())) {
+            responseStream.write("Success: File was stored\n".getBytes(StandardCharsets.UTF_8));
+        } else {
+            Socket neighbourNode = new Socket(neighbourId, 3030);
+            request.send(neighbourNode.getOutputStream());
+            //Pipes response into client socket
+            neighbourNode.getInputStream().transferTo(responseStream);
+            Files.delete(Paths.get(request.getFilePath()));
+            neighbourNode.close();
         }
     }
 }

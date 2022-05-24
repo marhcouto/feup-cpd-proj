@@ -1,23 +1,30 @@
 package store.state;
 
 import requests.NetworkRequest;
+import requests.PutRequest;
 import store.State;
 import store.membership.filesystem.MembershipLogger;
 import store.membership.filesystem.Neighbour;
 import utils.InvalidArgumentsException;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
+
+import static utils.FileKeyCalculate.fileToKey;
 
 /*
     This class represents the state of the current node
@@ -94,7 +101,8 @@ public class NodeState {
         );
     }
 
-    public String findNearestNeighbour(NetworkRequest request) throws NoSuchAlgorithmException {
+    public String findNearestNeighbour(String key) {
+        // TODO: refactor - extract to another class
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             List<HashedNodeWrapper> neighbourHashes = getNeighbourNodes().stream().map((neighbour -> { return new HashedNodeWrapper(neighbour.getNodeId(), new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.UTF_8)))); })).sorted(new Comparator<HashedNodeWrapper>() {
@@ -103,7 +111,7 @@ public class NodeState {
                     return o1.nodeHash().compareTo(o2.nodeHash());
                 }
             }).toList();
-            BigInteger requestHash = new BigInteger(1, digest.digest(request.getKey().getBytes(StandardCharsets.UTF_8)));
+            BigInteger requestHash = new BigInteger(1, digest.digest(key.getBytes(StandardCharsets.UTF_8)));
             for (int i = 1; i < neighbourHashes.size(); i++) {
                 BigInteger curHash = neighbourHashes.get(i).nodeHash();
                 BigInteger antHash = neighbourHashes.get(i - 1).nodeHash();
@@ -117,5 +125,31 @@ public class NodeState {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public List<File> getFiles() {
+        List<File> files = new ArrayList<>();
+        File dir = new File(String.format("store-persistent-storage/%s", nodeId));
+        for (File file : Objects.requireNonNull(dir.listFiles())) {
+            if (!file.getName().equals("membership_counter")) {
+                System.out.println("File name:" + file.getName());
+                files.add(new File(file.getName()));
+            }
+        }
+        return files;
+    }
+
+    public void distributeFiles() throws IOException {
+        List<File> files = getFiles();
+        for (File file : files) {
+            // TODO: use algorithm to find nearest neighbour properly
+            String nearestNodeId = findNearestNeighbour(file.getName());
+            String filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, file.getName())).toString();
+            PutRequest request = new PutRequest(fileToKey(new FileInputStream(filePath)), filePath);
+            System.out.println("Key:" + request.getKey());
+            Socket neighbourNode = new Socket("127.0.0.1", 3030);
+            request.send(neighbourNode.getOutputStream());
+            Files.delete(Paths.get(filePath));
+        }
     }
 }
