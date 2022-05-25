@@ -110,7 +110,7 @@ public class NodeState {
             String nearestNodeId = findNearestNeighbour(file.getName(), nodeId);
             String filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, file.getName())).toString();
             PutRequest request = new PutRequest(fileToKey(new FileInputStream(filePath)), filePath);
-            Socket neighbourNode = new Socket(nearestNodeId, 3030);
+            Socket neighbourNode = new Socket(nearestNodeId, getTcpDataConnectionAddress().getPort());
             request.send(neighbourNode.getOutputStream());
             Files.delete(Paths.get(filePath));
             neighbourNode.close();

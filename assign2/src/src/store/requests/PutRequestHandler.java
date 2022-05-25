@@ -27,7 +27,7 @@ public class PutRequestHandler extends RequestHandler {
         if (neighbourId.equals(getNodeState().getNodeId())) {
             responseStream.write("Success: File was stored\n".getBytes(StandardCharsets.UTF_8));
         } else {
-            Socket neighbourNode = new Socket(neighbourId, 3030);
+            Socket neighbourNode = new Socket(neighbourId, getNodeState().getTcpDataConnectionAddress().getPort());
             request.send(neighbourNode.getOutputStream());
             //Pipes response into client socket
             neighbourNode.getInputStream().transferTo(responseStream);
