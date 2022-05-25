@@ -40,10 +40,11 @@ public class DispatchClientRequestTask implements Runnable {
             RequestHandler requestHandler = getRequestHandler(headers[0]);
             requestHandler.execute(headers, clientSocket.getOutputStream(), inputStream);
         } catch (InvalidByteArray e) {
+            System.out.println("Message received from the client is invalid");
             e.printStackTrace();
         } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("Error communicating with client");
+            //We use the message from the exception because this exception is general, and we cannot tell what was the error
+            System.out.println(e.getMessage());
         } finally {
             try {
                 clientSocket.close();

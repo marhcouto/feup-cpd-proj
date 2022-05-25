@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 public abstract class NetworkSerializable {
 
-    public static final int MAX_HEADER_SIZE = 1024;
+    public static final int MAX_HEADER_SIZE = 512;
     public static final int MAX_BODY_CHUNK_SIZE = 4096;
     protected final String endOfLine = "\r\n";
 

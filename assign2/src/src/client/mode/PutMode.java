@@ -49,6 +49,7 @@ public class PutMode extends TcpMode {
             );
             while(digest.read() != -1) {}
             PutRequest putRequest = new PutRequest(bytesToHex(algorithm.digest()), filePath.toString());
+            System.out.println("File processed has hash: " + putRequest.getKey());
             Socket clientSocket = new Socket(getHost(), getPort());
             putRequest.send(clientSocket.getOutputStream());
             clientSocket.getInputStream().transferTo(System.out);
