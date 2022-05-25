@@ -40,6 +40,7 @@ public class PutRequest extends NetworkSerializable implements NetworkRequest {
     }
 
     public static PutRequest fromNetworkStream(String nodeId, String[] headers, InputStream fileStream) throws IOException {
+        // TODO: refactor - abstract the file saving part to a different function
         byte[] bodyBytes = new byte[NetworkSerializable.MAX_BODY_CHUNK_SIZE];
         int totalReadFileBytes = 0;
         String key = headers[1];
