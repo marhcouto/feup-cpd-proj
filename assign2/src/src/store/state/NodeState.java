@@ -32,7 +32,7 @@ import static utils.NearestNeighbour.findNearestNeighbour;
  */
 public class NodeState {
     public static final int EXPECTED_NUM_ARGS = 4;
-    private final State state = State.WAIT;
+    private State state;
     private final String nodeId;
     private final InetAddress mCastIpAddress;
     private final int mCastPort;
@@ -48,6 +48,15 @@ public class NodeState {
         this.storePort = storePort;
         tcpDataConnectionAddress = new InetSocketAddress(nodeId, storePort);
         this.membershipLogger = new MembershipLogger(nodeId);
+        this.state = State.WAITING_FOR_CLIENT;
+    }
+
+    public State getNodeState(){
+        return this.state;
+    }
+
+    public void changeNodeState(State state){
+        this.state = state;
     }
 
     public static String usage() {

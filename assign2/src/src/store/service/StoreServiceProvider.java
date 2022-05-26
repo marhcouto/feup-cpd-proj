@@ -18,17 +18,21 @@ import java.rmi.server.UnicastRemoteObject;
 public class StoreServiceProvider{
     private final NodeState nodeState;
 
+    private final String rmiNodeIdentifier;
+
     public StoreServiceProvider(NodeState store) {
         this.nodeState = store;
+        this.rmiNodeIdentifier = nodeState.getNodeId() + ":" + RMIConstants.SERVICE_NAME;
     }
 
     public void setupConnectionService() throws AlreadyBoundException {
         try{
-            MembershipProtocolRemote obj = new MembershipProtocolRemote();
+            MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState);
             MembershipCommands stub = (MembershipCommands) UnicastRemoteObject.exportObject(obj, 0);
 
             Registry registry = LocateRegistry.createRegistry(1099);
-            registry.bind(RMIConstants.SERVICE_NAME, stub);
+
+            registry.bind(rmiNodeIdentifier, stub);
         }  catch (Exception e) {
             System.err.println("Server exception: " + e.toString());
             e.printStackTrace();

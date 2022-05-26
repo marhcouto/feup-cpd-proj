@@ -1,3 +1,3 @@
 package store;
 
-public enum State { WAIT, JOINED };
+public enum State { WAITING_FOR_CLIENT, JOINED, JOINING };
