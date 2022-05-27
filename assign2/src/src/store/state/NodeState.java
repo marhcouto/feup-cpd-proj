@@ -6,6 +6,7 @@ import store.State;
 import store.membership.filesystem.MembershipLogger;
 import store.membership.filesystem.Neighbour;
 import utils.InvalidArgumentsException;
+import utils.NeighbourhoodAlgorithms;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,20 +18,17 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.stream.Stream;
 
 import static utils.FileKeyCalculate.fileToKey;
-import static utils.NearestNeighbour.findNearestNeighbour;
 
 /*
     This class represents the state of the current node
  */
-public class NodeState {
+public class NodeState implements Node {
     public static final int EXPECTED_NUM_ARGS = 4;
     private State state;
     private final String nodeId;
@@ -97,6 +95,7 @@ public class NodeState {
         return tcpDataConnectionAddress;
     }
 
+    @Override
     public String getNodeId() {
         return nodeId;
     }
@@ -116,7 +115,7 @@ public class NodeState {
         List<File> files = getFiles();
         for (File file : files) {
             // TODO: use algorithm to find nearest neighbour properly
-            String nearestNodeId = findNearestNeighbour(file.getName(), nodeId);
+            String nearestNodeId = new NeighbourhoodAlgorithms(this).findHeir(file.getName());
             String filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, file.getName())).toString();
             PutRequest request = new PutRequest(fileToKey(new FileInputStream(filePath)), filePath);
             Socket neighbourNode = new Socket(nearestNodeId, getTcpDataConnectionAddress().getPort());
@@ -124,5 +123,27 @@ public class NodeState {
             Files.delete(Paths.get(filePath));
             neighbourNode.close();
         }
+    }
+
+    @Override
+    public BigInteger getHashedNodeId() {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.US_ASCII)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public List<Neighbour> getNeighbourNodes() {
+        //TODO: Implement this function that must return all the neighbours of the current node
+        LinkedList<Neighbour> neighbours = new LinkedList<>(Arrays.asList(
+                new Neighbour("127.0.0.1", "1"),
+                new Neighbour("127.0.0.2", "2"),
+                new Neighbour("127.0.0.3", "3"),
+                new Neighbour("127.0.0.4", "4")
+        ));
+        neighbours.removeIf(elem -> elem.getNodeId().equals(getNodeId()));
+        return neighbours;
     }
 }

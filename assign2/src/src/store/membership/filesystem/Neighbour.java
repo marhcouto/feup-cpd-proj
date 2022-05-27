@@ -1,11 +1,13 @@
 package store.membership.filesystem;
 
+import store.state.Node;
+
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Neighbour implements FileStorable {
+public class Neighbour implements FileStorable, Node {
     private String nodeId;
     private String membershipCounter;
 
@@ -14,6 +16,7 @@ public class Neighbour implements FileStorable {
         this.membershipCounter = membershipCounter;
     }
 
+    @Override
     public String getNodeId() {
         return nodeId;
     }
@@ -30,5 +33,16 @@ public class Neighbour implements FileStorable {
     @Override
     public String toFile() {
         return null;
+    }
+
+
+    @Override
+    public BigInteger getHashedNodeId() {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.US_ASCII)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
