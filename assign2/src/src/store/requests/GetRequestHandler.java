@@ -11,9 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.NoSuchAlgorithmException;
-
-import static utils.NearestNeighbour.findNearestNeighbour;
 
 public class GetRequestHandler extends RequestHandler {
     public GetRequestHandler(NodeState nodeState) {
@@ -24,7 +21,7 @@ public class GetRequestHandler extends RequestHandler {
     void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
         GetRequest request = GetRequest.fromNetworkStream(headers);
         Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", getNodeState().getNodeId(), request.getKey()));
-        String neighbourId = findNearestNeighbour(request.getKey());
+        String neighbourId = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
         if (neighbourId.equals(getNodeState().getNodeId())) {
             if (!Files.exists(filePath)) {
                 responseStream.write("ERROR: Key not found\n".getBytes(StandardCharsets.UTF_8));
