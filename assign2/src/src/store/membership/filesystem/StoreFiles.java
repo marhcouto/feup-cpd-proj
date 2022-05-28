@@ -74,4 +74,10 @@ public class StoreFiles {
         return filePath.toString();
     }
 
+    public Path getFile(String key) throws FileNotFoundException{
+        Path filePath = Paths.get(String.format(this.fileFolder + "/%s", key));
+        if (! Files.exists(filePath)) throw new FileNotFoundException();
+        return filePath;
+    }
+
 }

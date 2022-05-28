@@ -3,6 +3,7 @@ package store.requests;
 import requests.DeleteRequest;
 import store.state.NodeState;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,12 +23,13 @@ public class DeleteRequestHandler extends RequestHandler {
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         String neighbourId = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
         if (neighbourId.equals(getNodeState().getNodeId())) {
-            Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", getNodeState().getNodeId(), request.getKey()));
-            if (!Files.exists(filePath)) {
-                responseStream.write("ERROR: Key not found\n".getBytes(StandardCharsets.UTF_8));
-            } else {
+            try {
+                Path filePath = getNodeState().getStoreFiles().getFile(request.getKey());
                 Files.delete(filePath);
                 responseStream.write("SUCCESS: File was found and deleted".getBytes(StandardCharsets.UTF_8));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                responseStream.write("ERROR: Key not found\n".getBytes(StandardCharsets.UTF_8));
             }
         } else {
             Socket neighbourSocket = new Socket(neighbourId, 3000);
