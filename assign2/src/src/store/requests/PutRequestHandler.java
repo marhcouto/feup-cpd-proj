@@ -17,7 +17,7 @@ public class PutRequestHandler extends RequestHandler {
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientStream) throws IOException {
         // TODO: change order of events to avoid saving and deletion
-        PutRequest request = PutRequest.fromNetworkStream(getNodeState().getNodeId(), headers, clientStream);
+        PutRequest request = PutRequest.fromNetworkStream(getNodeState(), headers, clientStream);
         String neighbourId = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
         if (neighbourId.equals(getNodeState().getNodeId())) {
             responseStream.write("Success: File was stored\n".getBytes(StandardCharsets.UTF_8));

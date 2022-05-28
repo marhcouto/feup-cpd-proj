@@ -11,7 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 public class NeighbourhoodAlgorithms {
-    private NodeState state;
+    private final NodeState state;
 
     public NeighbourhoodAlgorithms(NodeState state) {
         this.state = state;
@@ -19,7 +19,7 @@ public class NeighbourhoodAlgorithms {
 
     private String findNearestNeighbour(List<? extends Node> candidates, String fileKey) {
         try {
-            List<? extends Node> sortedCandidates = state.getNeighbourNodes().stream().sorted(Comparator.comparing(Node::getNodeId)).toList();
+            List<? extends Node> sortedCandidates = candidates.stream().sorted(Comparator.comparing(Node::getNodeId)).toList();
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             BigInteger requestHash = new BigInteger(1, digest.digest(fileKey.getBytes(StandardCharsets.UTF_8)));
             for (int i = 1; i < sortedCandidates.size(); i++) {
@@ -30,7 +30,7 @@ public class NeighbourhoodAlgorithms {
                 }
             }
             //If it arrives here the circular list was all traversed and the next node is the starting node
-            return candidates.get(0).getNodeId();
+            return sortedCandidates.get(0).getNodeId();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

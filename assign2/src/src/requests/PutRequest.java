@@ -1,5 +1,7 @@
 package requests;
 
+import store.state.NodeState;
+
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -39,26 +41,10 @@ public class PutRequest extends NetworkSerializable implements NetworkRequest {
         Files.copy(Paths.get(filePath), outputStream);
     }
 
-    public static PutRequest fromNetworkStream(String nodeId, String[] headers, InputStream fileStream) throws IOException {
-        // TODO: refactor - abstract the file saving part to a different function
-        byte[] bodyBytes = new byte[NetworkSerializable.MAX_BODY_CHUNK_SIZE];
-        int totalReadFileBytes = 0;
+    public static PutRequest fromNetworkStream(NodeState nodeState, String[] headers, InputStream fileStream) throws IOException {
         String key = headers[1];
         long fileSize = Long.parseLong(headers[2]);
-        Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, key));
-        if (Files.exists(filePath)) {
-            Files.delete(filePath);
-        }
-        try (OutputStream fs = Files.newOutputStream(filePath, StandardOpenOption.CREATE_NEW)) {
-            while(totalReadFileBytes < fileSize) {
-                int curReadFileBytes = fileStream.read(bodyBytes);
-                if (curReadFileBytes == -1) {
-                    break;
-                }
-                totalReadFileBytes += curReadFileBytes;
-                fs.write(Arrays.copyOfRange(bodyBytes, 0, curReadFileBytes));
-            }
-        }
-        return new PutRequest(key, filePath.toString());
+        String filePath = nodeState.getStoreFiles().saveFiles(key, fileSize, fileStream);
+        return new PutRequest(key, filePath);
     }
 }
