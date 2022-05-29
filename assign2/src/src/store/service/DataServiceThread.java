@@ -1,7 +1,7 @@
 package store.service;
 
-import store.state.NodeState;
-import store.requests.DispatchClientRequestTask;
+import store.node.NodeState;
+import store.handlers.store.DispatchStoreRequest;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -29,7 +29,7 @@ public class DataServiceThread extends Thread {
             while(!Thread.interrupted()) {
                 Socket socket = serverSocket.accept();
                 System.out.println("Received new connection");
-                requestDispatchers.execute(new DispatchClientRequestTask(nodeState, socket));
+                requestDispatchers.execute(new DispatchStoreRequest(nodeState, socket));
             }
         } catch (IOException e) {
             System.out.println("Failed to open TCP server socket to listen to clients");

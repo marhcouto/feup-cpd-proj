@@ -1,23 +1,23 @@
-package store.requests;
+package store.handlers.store;
 
 import requests.NetworkSerializable;
 import requests.RequestType;
 import requests.exceptions.InvalidByteArray;
-import store.state.NodeState;
+import store.node.NodeState;
 
 import java.io.*;
 import java.net.Socket;
 
-public class DispatchClientRequestTask implements Runnable {
+public class DispatchStoreRequest implements Runnable {
     private final Socket clientSocket;
     private final NodeState nodeState;
 
-    public DispatchClientRequestTask(NodeState nodeState, Socket clientSocket) {
+    public DispatchStoreRequest(NodeState nodeState, Socket clientSocket) {
         this.clientSocket = clientSocket;
         this.nodeState = nodeState;
     }
 
-    private RequestHandler getRequestHandler(String requestType) throws IOException, InvalidByteArray {
+    private StoreRequestHandler getRequestHandler(String requestType) throws IOException, InvalidByteArray {
         switch (requestType) {
             case RequestType.PUT -> {
                 return new PutRequestHandler(nodeState);
@@ -40,7 +40,7 @@ public class DispatchClientRequestTask implements Runnable {
         try {
             InputStream inputStream = clientSocket.getInputStream();
             String[] headers = NetworkSerializable.getHeader(inputStream);
-            RequestHandler requestHandler = getRequestHandler(headers[0]);
+            StoreRequestHandler requestHandler = getRequestHandler(headers[0]);
             requestHandler.execute(headers, clientSocket.getOutputStream(), inputStream);
         } catch (InvalidByteArray e) {
             System.out.println("Message received from the client is invalid");

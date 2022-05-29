@@ -1,20 +1,20 @@
-package store.requests;
+package store.handlers.multicast;
 
 import requests.NetworkSerializable;
 import requests.RequestType;
 import requests.exceptions.InvalidByteArray;
-import store.state.NodeState;
+import store.node.NodeState;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 
-public class DispatchMulticastRequest implements Runnable {
+public class DispatchMulticastMessage implements Runnable {
     //TODO: Organize packages
     private final NodeState nodeState;
     private final DatagramPacket packet;
-    public DispatchMulticastRequest(NodeState nodeState, DatagramPacket packet) {
+    public DispatchMulticastMessage(NodeState nodeState, DatagramPacket packet) {
         this.nodeState = nodeState;
         this.packet = packet;
     }

@@ -1,6 +1,7 @@
-package store.membership.filesystem;
+package store.filesystem;
 
-import store.state.NodeState;
+import store.node.Neighbour;
+import store.node.NodeState;
 
 import java.io.IOException;
 import java.nio.file.Files;

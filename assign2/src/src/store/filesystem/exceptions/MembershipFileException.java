@@ -1,4 +1,4 @@
-package store.membership.filesystem;
+package store.filesystem.exceptions;
 
 public class MembershipFileException extends Exception{
     public MembershipFileException(String message) {

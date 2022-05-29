@@ -1,7 +1,7 @@
-package store.requests;
+package store.handlers.multicast;
 
-import store.membership.MembershipMessage;
-import store.state.NodeState;
+import requests.multicast.MembershipMessage;
+import store.node.NodeState;
 
 import java.io.IOException;
 import java.io.InputStream;

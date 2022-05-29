@@ -1,6 +1,6 @@
-package store.requests;
+package store.handlers.multicast;
 
-import store.state.NodeState;
+import store.node.NodeState;
 
 import java.io.IOException;
 import java.io.InputStream;

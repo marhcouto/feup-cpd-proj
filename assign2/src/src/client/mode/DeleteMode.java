@@ -1,8 +1,6 @@
 package client.mode;
 
-import client.TestClient;
-import requests.DeleteRequest;
-import requests.GetRequest;
+import requests.store.DeleteRequest;
 
 import java.io.InputStream;
 import java.io.OutputStream;

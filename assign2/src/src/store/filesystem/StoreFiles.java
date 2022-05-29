@@ -1,8 +1,8 @@
-package store.membership.filesystem;
+package store.filesystem;
 
 import requests.NetworkSerializable;
-import requests.PutRequest;
-import store.state.NodeState;
+import requests.store.PutRequest;
+import store.node.NodeState;
 import utils.NeighbourhoodAlgorithms;
 
 import java.io.*;
@@ -51,6 +51,7 @@ public class StoreFiles {
     public void distributeFiles() throws IOException {
         List<File> files = getFiles();
         for (File file : files) {
+            // TODO: change algorithm for replication
             String nearestNodeId = new NeighbourhoodAlgorithms(this.node).findHeir(file.getName());
             String filePath = Paths.get(String.format(this.fileFolder + "/%s", file.getName())).toString();
             PutRequest request = new PutRequest(fileToKey(new FileInputStream(filePath)), filePath);
@@ -61,7 +62,7 @@ public class StoreFiles {
         }
     }
 
-    public String saveFiles(String key, long fileSize, InputStream fileStream) throws IOException {
+    public String saveFile(String key, long fileSize, InputStream fileStream) throws IOException {
         byte[] bodyBytes = new byte[NetworkSerializable.MAX_BODY_CHUNK_SIZE];
         int totalReadFileBytes = 0;
         Path filePath = Paths.get(String.format(this.fileFolder + "/%s", key));

@@ -1,6 +1,9 @@
-package requests;
+package requests.store;
 
-import store.state.NodeState;
+import requests.NetworkRequest;
+import requests.NetworkSerializable;
+import requests.RequestType;
+import store.node.NodeState;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -61,7 +64,7 @@ public class PutRequest extends NetworkSerializable implements NetworkRequest {
         String key = headers[1];
         long fileSize = Long.parseLong(headers[2]);
         Boolean replicate = Boolean.parseBoolean(headers[3]);
-        String filePath = nodeState.getStoreFiles().saveFiles(key, fileSize, fileStream);
+        String filePath = nodeState.getStoreFiles().saveFile(key, fileSize, fileStream);
         return new PutRequest(key, filePath, replicate);
     }
 }

@@ -1,8 +1,7 @@
 package utils;
 
-import store.membership.filesystem.Neighbour;
-import store.state.Node;
-import store.state.NodeState;
+import store.node.Node;
+import store.node.NodeState;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;

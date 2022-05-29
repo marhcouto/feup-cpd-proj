@@ -1,7 +1,7 @@
-package store.requests;
+package store.handlers.store;
 
-import requests.DeleteRequest;
-import store.state.NodeState;
+import requests.store.DeleteRequest;
+import store.node.NodeState;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -14,13 +14,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class DeleteRequestHandler extends RequestHandler {
+public class DeleteRequestHandler extends StoreRequestHandler {
     public DeleteRequestHandler(NodeState state) {
         super(state);
     }
 
     @Override
-    void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
+    public void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
         // TODO: sends connection refused in else
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         List<String> allNeigh = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());

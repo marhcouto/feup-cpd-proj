@@ -1,8 +1,8 @@
-package store.membership;
+package store.multicast;
 
-import store.membership.filesystem.MembershipLogger;
-import requests.RequestType;
-import store.state.NodeState;
+import requests.multicast.MembershipMessage;
+import store.filesystem.MembershipLogger;
+import store.node.NodeState;
 
 import java.io.IOException;
 import java.net.*;

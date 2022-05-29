@@ -1,10 +1,9 @@
 package client.mode;
 
-import requests.GetRequest;
+import requests.store.GetRequest;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class GetMode extends TcpMode {
     String key;

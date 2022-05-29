@@ -1,7 +1,7 @@
-package store.requests;
+package store.handlers.store;
 
-import requests.PutRequest;
-import store.state.NodeState;
+import requests.store.PutRequest;
+import store.node.NodeState;
 
 import java.io.*;
 import java.net.Socket;
@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class PutRequestHandler extends RequestHandler {
+public class PutRequestHandler extends StoreRequestHandler {
     public PutRequestHandler(NodeState state) {
         super(state);
     }

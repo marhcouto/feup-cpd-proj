@@ -2,12 +2,11 @@ package store.service;
 
 import rmi.MembershipCommands;
 import rmi.RMIConstants;
-import store.state.NodeState;
+import store.node.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
 import utils.RmiUtils;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;

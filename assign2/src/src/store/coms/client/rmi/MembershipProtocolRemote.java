@@ -1,8 +1,8 @@
 package store.coms.client.rmi;
 
 import rmi.MembershipCommands;
-import store.State;
-import store.state.NodeState;
+import store.node.State;
+import store.node.NodeState;
 
 import java.rmi.RemoteException;
 

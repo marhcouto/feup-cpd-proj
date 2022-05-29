@@ -1,31 +1,18 @@
-package store.state;
+package store.node;
 
-import requests.NetworkRequest;
-import requests.PutRequest;
-import store.State;
-import store.Store;
-import store.membership.filesystem.MembershipLogger;
-import store.membership.filesystem.Neighbour;
-import store.membership.filesystem.StoreFiles;
+import store.filesystem.MembershipLogger;
+import store.filesystem.StoreFiles;
 import utils.InvalidArgumentsException;
-import utils.NeighbourhoodAlgorithms;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-
-import static utils.FileKeyCalculate.fileToKey;
 
 /*
     This class represents the state of the current node

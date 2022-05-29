@@ -1,14 +1,12 @@
-package requests;
+package requests.store;
 
-import requests.exceptions.InvalidByteArray;
-import store.requests.RequestHandler;
+import requests.NetworkRequest;
+import requests.NetworkSerializable;
+import requests.RequestType;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class GetRequest extends NetworkSerializable implements NetworkRequest {
     private final String key;

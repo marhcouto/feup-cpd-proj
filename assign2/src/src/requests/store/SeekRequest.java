@@ -1,4 +1,8 @@
-package requests;
+package requests.store;
+
+import requests.NetworkRequest;
+import requests.NetworkSerializable;
+import requests.RequestType;
 
 import java.io.IOException;
 import java.io.OutputStream;

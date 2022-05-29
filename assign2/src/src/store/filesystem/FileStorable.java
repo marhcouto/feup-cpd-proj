@@ -1,4 +1,4 @@
-package store.membership.filesystem;
+package store.filesystem;
 
 public interface FileStorable {
     String toFile();

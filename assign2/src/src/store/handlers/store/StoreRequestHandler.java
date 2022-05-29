@@ -1,15 +1,15 @@
-package store.requests;
+package store.handlers.store;
 
-import store.state.NodeState;
+import store.node.NodeState;
 import utils.NeighbourhoodAlgorithms;
 
 import java.io.*;
 
-public abstract class RequestHandler {
+public abstract class StoreRequestHandler {
     private final NodeState nodeState;
     private final NeighbourhoodAlgorithms neighbourhoodAlgorithms;
 
-    protected RequestHandler(NodeState nodeState) {
+    protected StoreRequestHandler(NodeState nodeState) {
         this.nodeState = nodeState;
         this.neighbourhoodAlgorithms = new NeighbourhoodAlgorithms(nodeState);
     }
@@ -22,5 +22,5 @@ public abstract class RequestHandler {
         return neighbourhoodAlgorithms;
     }
 
-    abstract void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException;
+    public abstract void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException;
 }

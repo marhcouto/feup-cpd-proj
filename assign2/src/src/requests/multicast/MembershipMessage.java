@@ -1,11 +1,10 @@
-package store.membership;
+package requests.multicast;
 
 import requests.NetworkSerializable;
 import requests.RequestType;
 import requests.exceptions.InvalidByteArray;
-import store.membership.filesystem.Neighbour;
-import store.state.NodeState;
-import utils.FixedSizeCircularArray;
+import store.node.Neighbour;
+import store.node.NodeState;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,6 +1,6 @@
-package store.membership.filesystem;
+package store.node;
 
-import store.state.Node;
+import store.filesystem.FileStorable;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
