@@ -22,15 +22,6 @@ public class StoreServiceProvider extends RmiUtils {
         this.nodeState = store;
     }
 
-    public int getNodeIdLastDigit() {
-        String nodeId = nodeState.getNodeId();
-        var ipLastDigit = nodeId.charAt(nodeId.length() - 1);
-        var charToInt = Character.getNumericValue(ipLastDigit);
-
-        return charToInt;
-    }
-
-
     public void setupConnectionService() throws AlreadyBoundException {
         try{
             MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState);
