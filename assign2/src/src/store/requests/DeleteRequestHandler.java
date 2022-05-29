@@ -3,6 +3,7 @@ package store.requests;
 import requests.DeleteRequest;
 import store.state.NodeState;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,15 +21,21 @@ public class DeleteRequestHandler extends RequestHandler {
 
     @Override
     void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
+        // TODO: sends connection refused in else
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         List<String> allNeigh = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
-        Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", getNodeState().getNodeId(), request.getKey()));
         if (allNeigh.contains(getNodeState().getNodeId())) {
-            Files.delete(filePath);
-            Files.createFile(Paths.get(filePath + "_DEL"));
-            allNeigh.removeIf(elem -> getNodeState().getNodeId().equals(elem));
-        }
-        if (request.needToReplicate()) {
+            try {
+                Path filePath = getNodeState().getStoreFiles().getFile(request.getKey());
+                Files.delete(filePath);
+                Files.createFile(Paths.get(filePath + "_DEL"));
+                allNeigh.removeIf(elem -> getNodeState().getNodeId().equals(elem));
+                // TODO: implement good feedback messages
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                responseStream.write("ERROR: Key not found\n".getBytes(StandardCharsets.UTF_8));
+            }
+        } else if (request.needToReplicate()) {
             for (var neighId: allNeigh) {
                 DeleteRequest newRequest = new DeleteRequest(request, false);
                 Socket neighbourSocket = new Socket(neighId, 3000);

@@ -42,12 +42,16 @@ public class StoreServiceProvider{
 
             registry.bind(rmiNodeIdentifier, stub);
         }  catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
+            System.err.println("Server exception: " + e);
             e.printStackTrace();
         }
     }
 
     public void setupDataService() throws IOException {
         new DataServiceThread(nodeState).start();
+    }
+
+    public void setupMembershipService() throws IOException {
+        new MembershipServiceThread(nodeState).start();
     }
 }

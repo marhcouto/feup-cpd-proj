@@ -2,6 +2,8 @@ package store.membership;
 
 import store.membership.filesystem.MembershipLogger;
 import requests.RequestType;
+import store.state.NodeState;
+
 import java.io.IOException;
 import java.net.*;
 
@@ -53,5 +55,13 @@ public class MembershipProtocol {
             return;
         }
         mcastJoinMessagesSent++;
+    }
+
+    public static void sendMembershipMessage(NodeState nodeState) throws IOException {
+        MulticastSocket socket = new MulticastSocket();
+        MembershipMessage message = new MembershipMessage(nodeState.getMembershipLogger().getLog(), nodeState.getMembershipLogger().getActiveNodes());
+        DatagramPacket packet = new DatagramPacket(message.toString().getBytes(), message.toString().length(), nodeState.getmCastIpAddress(), nodeState.getmCastPort());
+        socket.send(packet);
+        socket.close();
     }
 }

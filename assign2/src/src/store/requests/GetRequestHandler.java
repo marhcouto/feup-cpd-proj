@@ -4,6 +4,7 @@ import requests.GetRequest;
 import requests.SeekRequest;
 import store.state.NodeState;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,12 +22,18 @@ public class GetRequestHandler extends RequestHandler {
 
     @Override
     void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
+        // TODO: sends connection refused in else
         GetRequest request = GetRequest.fromNetworkStream(headers);
-        Path filePath = Paths.get(String.format("store-persistent-storage/%s/%s", getNodeState().getNodeId(), request.getKey()));
         List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
-        if (allDest.contains(getNodeState().getNodeId()) && Files.exists(filePath)) {
-            Files.copy(filePath, responseStream);
-            return;
+        if (allDest.contains(getNodeState().getNodeId())) {
+            try {
+                Path filePath = getNodeState().getStoreFiles().getFile(request.getKey());
+                Files.copy(filePath, responseStream);
+                return;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                responseStream.write("ERROR: Key not found\n".getBytes(StandardCharsets.UTF_8));
+            }
         }
         // Removes the actual node because we already checked if the file existed
         allDest.removeIf(nodeId -> nodeId.equals(getNodeState().getNodeId()));

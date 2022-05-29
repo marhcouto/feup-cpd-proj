@@ -32,7 +32,7 @@ public class NeighbourhoodAlgorithms {
                 }
             }
             //If it arrives here the circular list was all traversed and the next node is the starting node
-            return candidates.get(0).getNodeId();
+            return sortedCandidates.get(0).getNodeId();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }

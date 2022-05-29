@@ -3,8 +3,10 @@ package store.state;
 import requests.NetworkRequest;
 import requests.PutRequest;
 import store.State;
+import store.Store;
 import store.membership.filesystem.MembershipLogger;
 import store.membership.filesystem.Neighbour;
+import store.membership.filesystem.StoreFiles;
 import utils.InvalidArgumentsException;
 import utils.NeighbourhoodAlgorithms;
 
@@ -35,9 +37,9 @@ public class NodeState implements Node {
     private final InetAddress mCastIpAddress;
     private final int mCastPort;
     private final int storePort;
-
     private final InetSocketAddress tcpDataConnectionAddress;
     private final MembershipLogger membershipLogger;
+    private final StoreFiles storeFiles;
 
     private NodeState(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) throws IOException {
         this.nodeId = nodeId;
@@ -45,8 +47,9 @@ public class NodeState implements Node {
         this.mCastPort = mCastPort;
         this.storePort = storePort;
         tcpDataConnectionAddress = new InetSocketAddress(nodeId, storePort);
-        this.membershipLogger = new MembershipLogger(nodeId);
+        this.membershipLogger = new MembershipLogger(this);
         this.state = State.WAITING_FOR_CLIENT;
+        this.storeFiles = new StoreFiles(this);
     }
 
     public State getNodeState(){
@@ -100,29 +103,18 @@ public class NodeState implements Node {
         return nodeId;
     }
 
-    public List<File> getFiles() {
-        List<File> files = new ArrayList<>();
-        File dir = new File(String.format("store-persistent-storage/%s", nodeId));
-        for (File file : Objects.requireNonNull(dir.listFiles())) {
-            if (!file.getName().equals("membership_counter")) {
-                files.add(new File(file.getName()));
-            }
-        }
-        return files;
+    public StoreFiles getStoreFiles() { return this.storeFiles; }
+
+    public InetAddress getmCastIpAddress() {
+        return mCastIpAddress;
     }
 
-    public void distributeFiles() throws IOException {
-        List<File> files = getFiles();
-        for (File file : files) {
-            // TODO: use algorithm to find nearest neighbour properly
-            String nearestNodeId = new NeighbourhoodAlgorithms(this).findHeir(file.getName());
-            String filePath = Paths.get(String.format("store-persistent-storage/%s/%s", nodeId, file.getName())).toString();
-            PutRequest request = new PutRequest(fileToKey(new FileInputStream(filePath)), filePath);
-            Socket neighbourNode = new Socket(nearestNodeId, getTcpDataConnectionAddress().getPort());
-            request.send(neighbourNode.getOutputStream());
-            Files.delete(Paths.get(filePath));
-            neighbourNode.close();
-        }
+    public MembershipLogger getMembershipLogger() {
+        return membershipLogger;
+    }
+
+    public int getmCastPort() {
+        return mCastPort;
     }
 
     @Override
