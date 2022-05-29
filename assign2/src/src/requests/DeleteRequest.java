@@ -5,14 +5,29 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
 public class DeleteRequest extends NetworkSerializable implements NetworkRequest {
-    private String key;
+    private final String key;
+    private final Boolean replicate;
+
+    public DeleteRequest(DeleteRequest copy, Boolean replicate) {
+        this.key = copy.getKey();
+        this.replicate = replicate;
+    }
+
+    public DeleteRequest(String key, Boolean replicate) {
+        this.key = key;
+        this.replicate = replicate;
+    }
 
     public DeleteRequest(String key) {
-        this.key = key;
+        this(key, true);
     }
     @Override
     public String getKey() {
         return key;
+    }
+
+    public boolean needToReplicate() {
+        return replicate;
     }
 
     @Override
