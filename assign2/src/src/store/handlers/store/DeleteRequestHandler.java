@@ -21,7 +21,6 @@ public class DeleteRequestHandler extends StoreRequestHandler {
 
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
-        // TODO: sends connection refused in else
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         List<String> allNeigh = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
         if (allNeigh.contains(getNodeState().getNodeId())) {

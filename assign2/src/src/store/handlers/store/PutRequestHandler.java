@@ -17,7 +17,6 @@ public class PutRequestHandler extends StoreRequestHandler {
 
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientStream) throws IOException {
-        // TODO: change order of events to avoid saving and deletion
         PutRequest request = PutRequest.fromNetworkStream(getNodeState(), headers, clientStream);
         List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
         System.out.println(String.format("Got PUT request with ID '%s' going to replicate to: %s", request.getKey(), allDest));

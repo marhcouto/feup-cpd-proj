@@ -3,7 +3,7 @@ package store.filesystem;
 import requests.NetworkSerializable;
 import requests.store.PutRequest;
 import store.node.NodeState;
-import utils.NeighbourhoodAlgorithms;
+import utils.algorithms.NeighbourhoodAlgorithms;
 
 import java.io.*;
 import java.net.Socket;
@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static utils.FileKeyCalculate.fileToKey;
+import static utils.algorithms.FileKeyCalculate.fileToKey;
 
 public class FileStorer extends NodeFileHandler {
 

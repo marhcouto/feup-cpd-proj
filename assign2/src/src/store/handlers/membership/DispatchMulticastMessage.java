@@ -1,4 +1,4 @@
-package store.handlers.multicast;
+package store.handlers.membership;
 
 import requests.NetworkSerializable;
 import requests.RequestType;
@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 
 public class DispatchMulticastMessage implements Runnable {
-    //TODO: Organize packages
     private final NodeState nodeState;
     private final DatagramPacket packet;
     public DispatchMulticastMessage(NodeState nodeState, DatagramPacket packet) {

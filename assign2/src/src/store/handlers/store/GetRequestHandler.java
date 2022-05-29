@@ -21,7 +21,6 @@ public class GetRequestHandler extends StoreRequestHandler {
 
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
-        // TODO: sends connection refused in else
         GetRequest request = GetRequest.fromNetworkStream(headers);
         List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
         if (allDest.contains(getNodeState().getNodeId())) {

@@ -11,13 +11,13 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class DataServiceThread extends Thread {
+public class StoreServiceThread extends Thread {
     ExecutorService requestDispatchers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
     private ServerSocket serverSocket;
     private final NodeState nodeState;
 
 
-    public DataServiceThread(NodeState nodeState) {
+    public StoreServiceThread(NodeState nodeState) {
         this.nodeState = nodeState;
     }
 

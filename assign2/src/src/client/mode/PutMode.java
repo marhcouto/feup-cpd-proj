@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static utils.FileKeyCalculate.fileToKey;
+import static utils.algorithms.FileKeyCalculate.fileToKey;
 
 public class PutMode extends TcpMode {
     private Path filePath;

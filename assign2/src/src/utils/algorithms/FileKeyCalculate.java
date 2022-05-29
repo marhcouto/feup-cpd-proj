@@ -1,4 +1,4 @@
-package utils;
+package utils.algorithms;
 
 import java.io.File;
 import java.io.FileInputStream;

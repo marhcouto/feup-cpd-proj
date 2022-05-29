@@ -7,7 +7,7 @@ import store.node.NodeState;
 import java.rmi.RemoteException;
 
 public class MembershipProtocolRemote implements MembershipCommands {
-
+    // TODO: maybe put in another package
     private final NodeState nodeState;
 
     public MembershipProtocolRemote(NodeState nodeState){

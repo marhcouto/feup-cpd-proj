@@ -1,4 +1,4 @@
-package store.multicast;
+package store.membership;
 
 import requests.multicast.MembershipMessage;
 import store.filesystem.MembershipLogger;

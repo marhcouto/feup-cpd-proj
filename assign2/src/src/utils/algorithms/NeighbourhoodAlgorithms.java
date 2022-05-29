@@ -1,4 +1,4 @@
-package utils;
+package utils.algorithms;
 
 import store.node.Node;
 import store.node.NodeState;

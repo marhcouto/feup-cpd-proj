@@ -1,7 +1,7 @@
 package store.handlers.store;
 
 import store.node.NodeState;
-import utils.NeighbourhoodAlgorithms;
+import utils.algorithms.NeighbourhoodAlgorithms;
 
 import java.io.*;
 

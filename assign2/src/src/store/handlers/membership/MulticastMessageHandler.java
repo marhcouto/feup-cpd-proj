@@ -1,4 +1,4 @@
-package store.handlers.multicast;
+package store.handlers.membership;
 
 import store.node.NodeState;
 

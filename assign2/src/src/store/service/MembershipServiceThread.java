@@ -1,6 +1,6 @@
 package store.service;
 
-import store.handlers.multicast.DispatchMulticastMessage;
+import store.handlers.membership.DispatchMulticastMessage;
 import store.node.NodeState;
 
 import java.io.IOException;

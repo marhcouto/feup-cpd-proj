@@ -4,6 +4,7 @@ import rmi.MembershipCommands;
 import rmi.RMIConstants;
 import store.node.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
+import store.service.periodic.LogUpdater;
 import utils.RmiUtils;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
@@ -11,12 +12,12 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-public class StoreServiceProvider extends RmiUtils {
+public class ServiceProvider extends RmiUtils {
     private final NodeState nodeState;
 
     /*Rmi register identifier equals to nodeap:MemberShipService so that each node can have different bindings*/
 
-    public StoreServiceProvider(NodeState store) {
+    public ServiceProvider(NodeState store) {
         super(store.getNodeId() + ":" + RMIConstants.SERVICE_NAME, store.getNodeId());
         this.nodeState = store;
     }
@@ -35,10 +36,11 @@ public class StoreServiceProvider extends RmiUtils {
     }
 
     public void setupDataService() throws IOException {
-        new DataServiceThread(nodeState).start();
+        new StoreServiceThread(nodeState).start();
     }
 
     public void setupMembershipService() throws IOException {
         new MembershipServiceThread(nodeState).start();
+        new LogUpdater(nodeState).schedule();
     }
 }
