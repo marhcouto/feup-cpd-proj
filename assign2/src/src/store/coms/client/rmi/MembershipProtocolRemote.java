@@ -29,7 +29,6 @@ public class MembershipProtocolRemote implements MembershipCommands {
         if(nodeAlreadyJoining()){
             return "Node with id '" + this.nodeState.getNodeId() + "' has already joined the cluster";
         }
-        System.out.println("Hello:" + this.nodeState);
 
         nodeState.changeNodeState(State.JOINING);
 

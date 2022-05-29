@@ -20,10 +20,20 @@ public class JoinMode implements Mode {
         service = apComponents[1];
     }
 
+    public int getNodeIdLastDigit() {
+        String nodeId = host;
+        var ipLastDigit = nodeId.charAt(nodeId.length() - 1);
+        var charToInt = Character.getNumericValue(ipLastDigit);
+
+        return charToInt;
+    }
+
     @Override
     public void execute() {
         try {
-            Registry registry = LocateRegistry.getRegistry(host);
+            System.out.println("Entered");
+            Registry registry = LocateRegistry.getRegistry(host, 1099+getNodeIdLastDigit());
+            System.out.println("Why: " + rmiNodeIdentifier);
             MembershipCommands commands = (MembershipCommands) registry.lookup(rmiNodeIdentifier);
             System.out.println(commands.join());
         } catch (Exception e) {

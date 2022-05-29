@@ -4,11 +4,8 @@ import rmi.MembershipCommands;
 import rmi.RMIConstants;
 import store.state.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
-import sun.misc.Signal;
-import sun.misc.SignalHandler;
 
 import java.io.IOException;
-import java.rmi.AccessException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -18,6 +15,7 @@ import java.rmi.server.UnicastRemoteObject;
 public class StoreServiceProvider{
     private final NodeState nodeState;
 
+    /*Rmi register identifier equals to nodeap:MemberShipService so that each node can have different bindings*/
     private final String rmiNodeIdentifier;
 
     public StoreServiceProvider(NodeState store) {
@@ -25,12 +23,22 @@ public class StoreServiceProvider{
         this.rmiNodeIdentifier = nodeState.getNodeId() + ":" + RMIConstants.SERVICE_NAME;
     }
 
+    public int getNodeIdLastDigit() {
+        String nodeId = nodeState.getNodeId();
+        var ipLastDigit = nodeId.charAt(nodeId.length() - 1);
+        var charToInt = Character.getNumericValue(ipLastDigit);
+
+        return charToInt;
+    }
+
+
     public void setupConnectionService() throws AlreadyBoundException {
         try{
             MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState);
             MembershipCommands stub = (MembershipCommands) UnicastRemoteObject.exportObject(obj, 0);
 
-            Registry registry = LocateRegistry.createRegistry(1099);
+            Registry registry = LocateRegistry.createRegistry(1099 + getNodeIdLastDigit());
+            System.out.println(rmiNodeIdentifier);
 
             registry.bind(rmiNodeIdentifier, stub);
         }  catch (Exception e) {
