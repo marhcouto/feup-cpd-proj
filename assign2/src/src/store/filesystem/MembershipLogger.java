@@ -20,6 +20,7 @@ public class MembershipLogger extends NodeFileHandler {
     public MembershipLogger(NodeState nodeState) throws IOException {
         super(nodeState);
         this.nodeFsRoot = String.format("store-persistent-storage/%s/", nodeState.getNodeId());
+        this.build();
     }
     @Override
     protected void build() throws IOException {
@@ -48,7 +49,6 @@ public class MembershipLogger extends NodeFileHandler {
         } else {
             Files.lines(path).forEachOrdered(line -> log.add(Neighbour.fromString(line)));
         }
-        System.out.println(log);
     }
 
     public int getMembershipCounter() {

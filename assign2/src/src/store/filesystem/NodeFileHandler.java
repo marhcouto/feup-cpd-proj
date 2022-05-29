@@ -10,7 +10,6 @@ public abstract class NodeFileHandler {
 
     protected NodeFileHandler(NodeState nodeState) throws IOException {
         this.nodeState = nodeState;
-        this.build();
     }
 
     protected abstract void build() throws IOException;

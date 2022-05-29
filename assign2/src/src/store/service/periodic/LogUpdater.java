@@ -3,9 +3,6 @@ package store.service.periodic;
 import store.node.NodeState;
 
 import java.io.IOException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class LogUpdater extends PeriodicActor {
 
@@ -14,7 +11,7 @@ public class LogUpdater extends PeriodicActor {
     }
 
     @Override
-    protected long getInterval() { return 1; }
+    protected long getInterval() { return 3; }
 
     @Override
     public void run() {

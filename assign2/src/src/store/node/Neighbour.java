@@ -23,7 +23,6 @@ public class Neighbour extends Node implements FileStorable {
 
     public static Neighbour fromString(String logFileString) {
         String[] elems = logFileString.split("-", 2);
-        System.out.println(elems[0]);
         return new Neighbour(elems[0], elems[1]);
     }
 

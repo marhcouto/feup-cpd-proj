@@ -25,6 +25,7 @@ public class FileStorer extends NodeFileHandler {
     public FileStorer(NodeState nodeState) throws IOException {
         super(nodeState);
         this.fileFolder = "store-persistent-storage/" + nodeState.getNodeId() + "/files";
+        this.build();
     }
 
     @Override
