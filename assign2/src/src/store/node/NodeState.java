@@ -1,7 +1,7 @@
 package store.node;
 
 import store.filesystem.MembershipLogger;
-import store.filesystem.StoreFiles;
+import store.filesystem.FileStorer;
 import utils.InvalidArgumentsException;
 
 import java.io.IOException;
@@ -17,38 +17,25 @@ import java.util.*;
 /*
     This class represents the state of the current node
  */
-public class NodeState implements Node {
+public class NodeState extends Node {
     public static final int EXPECTED_NUM_ARGS = 4;
     private State state;
-    private final String nodeId;
     private final InetAddress mCastIpAddress;
     private final int mCastPort;
     private final int storePort;
     private final InetSocketAddress tcpDataConnectionAddress;
     private final MembershipLogger membershipLogger;
-    private final StoreFiles storeFiles;
+    private final FileStorer storeFiles;
 
     private NodeState(String nodeId, InetAddress mCastIpAddress, int mCastPort, int storePort) throws IOException {
-        this.nodeId = nodeId;
+        super(nodeId);
         this.mCastIpAddress = mCastIpAddress;
         this.mCastPort = mCastPort;
         this.storePort = storePort;
         tcpDataConnectionAddress = new InetSocketAddress(nodeId, storePort);
         this.membershipLogger = new MembershipLogger(this);
         this.state = State.WAITING_FOR_CLIENT;
-        this.storeFiles = new StoreFiles(this);
-    }
-
-    public State getNodeState(){
-        return this.state;
-    }
-
-    public void changeNodeState(State state){
-        this.state = state;
-    }
-
-    public static String usage() {
-        return "Usage: java store.Store <IP_mcast_addr> <IP_mcast_port> <node_id>  <Store_port>";
+        this.storeFiles = new FileStorer(this);
     }
 
     public static NodeState fromArguments(String[] args) throws InvalidArgumentsException, IOException {
@@ -81,16 +68,19 @@ public class NodeState implements Node {
         return new NodeState(nodeId, mCastIpAddress, mCastPort, storePort);
     }
 
+    public State getNodeState(){
+        return this.state;
+    }
+
+    public void changeNodeState(State state){
+        this.state = state;
+    }
+
     public InetSocketAddress getTcpDataConnectionAddress() {
         return tcpDataConnectionAddress;
     }
 
-    @Override
-    public String getNodeId() {
-        return nodeId;
-    }
-
-    public StoreFiles getStoreFiles() { return this.storeFiles; }
+    public FileStorer getStoreFiles() { return this.storeFiles; }
 
     public InetAddress getmCastIpAddress() {
         return mCastIpAddress;
@@ -102,16 +92,6 @@ public class NodeState implements Node {
 
     public int getmCastPort() {
         return mCastPort;
-    }
-
-    @Override
-    public BigInteger getHashedNodeId() {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.US_ASCII)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public List<Neighbour> getNeighbourNodes() {

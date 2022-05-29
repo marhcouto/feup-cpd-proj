@@ -12,20 +12,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class MembershipLogger {
-
-    private final NodeState nodeState;
+public class MembershipLogger extends NodeFileHandler {
     private final List<Neighbour> log = Collections.synchronizedList(new ArrayList<>());
     private final String nodeFsRoot;
     private int membershipCounter;
 
     public MembershipLogger(NodeState nodeState) throws IOException {
+        super(nodeState);
         this.nodeFsRoot = String.format("store-persistent-storage/%s/", nodeState.getNodeId());
-        this.nodeState = nodeState;
-        this.build();
     }
-
-    private void build() throws IOException {
+    @Override
+    protected void build() throws IOException {
         Path path = Paths.get(nodeFsRoot);
         if (!Files.isDirectory(path)) {
             Files.createDirectories(path);

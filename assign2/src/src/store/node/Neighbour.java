@@ -7,18 +7,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Neighbour implements FileStorable, Node {
-    private final String nodeId;
+public class Neighbour extends Node implements FileStorable {
     private String membershipCounter;
 
     public Neighbour(String nodeId, String membershipCounter) {
-        this.nodeId = nodeId;
+        super(nodeId);
         this.membershipCounter = membershipCounter;
-    }
-
-    @Override
-    public String getNodeId() {
-        return nodeId;
     }
 
     public String getMembershipCounter() {
@@ -36,17 +30,6 @@ public class Neighbour implements FileStorable, Node {
     @Override
     public String toFile() {
         return String.format("%s %s", getNodeId(), getMembershipCounter());
-    }
-
-    @Override
-    public BigInteger getHashedNodeId() {
-        // TODO: refactor to an intermediate class between Node and this and NodeState
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            return new BigInteger(1, digest.digest(getNodeId().getBytes(StandardCharsets.US_ASCII)));
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
