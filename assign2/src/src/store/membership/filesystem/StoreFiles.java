@@ -23,17 +23,24 @@ public class StoreFiles {
     private final String fileFolder;
     private final NodeState node;
 
-    public StoreFiles(NodeState node) {
+    public StoreFiles(NodeState node) throws IOException {
         this.node = node;
         this.fileFolder = "store-persistent-storage/" + node.getNodeId() + "/files";
+        this.build();
     }
 
-    public List<File> getFiles() {
+    private void build() throws IOException {
+        Path filePath = Paths.get(this.fileFolder);
+        if (!Files.exists(filePath)) {
+            Files.createDirectory(filePath);
+        }
+    }
+
+    public List<File> getFiles() throws FileNotFoundException {
         List<File> files = new ArrayList<>();
         File dir = new File(this.fileFolder);
         if (!dir.isDirectory()) {
-            // TODO: do something
-            System.out.println("something wong");
+            throw new FileNotFoundException();
         }
         for (File file : Objects.requireNonNull(dir.listFiles())) {
             files.add(new File(file.getName()));

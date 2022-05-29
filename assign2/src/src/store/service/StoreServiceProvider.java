@@ -42,4 +42,8 @@ public class StoreServiceProvider{
     public void setupDataService() throws IOException {
         new DataServiceThread(nodeState).start();
     }
+
+    public void setupMembershipService() throws IOException {
+        new MembershipServiceThread(nodeState).start();
+    }
 }

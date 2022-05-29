@@ -20,6 +20,7 @@ public class DeleteRequestHandler extends RequestHandler {
 
     @Override
     void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
+        // TODO: sends connection refused in else
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         String neighbourId = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
         if (neighbourId.equals(getNodeState().getNodeId())) {

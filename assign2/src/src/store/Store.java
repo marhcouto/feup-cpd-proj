@@ -12,10 +12,13 @@ public class Store {
     public static void main(String[] args) throws IOException, RemoteException {
         try {
             StoreServiceProvider provider = new StoreServiceProvider(NodeState.fromArguments(args));
-            // provider.setupConnectionService();
+            provider.setupConnectionService();
             provider.setupDataService();
+            provider.setupMembershipService();
         } catch (InvalidArgumentsException invalidArgumentsException) {
             System.out.println(NodeState.usage());
+        } catch (AlreadyBoundException e) {
+            throw new RuntimeException(e);
         }
         try {
             // 292 billion years seems enough

@@ -20,6 +20,7 @@ public class GetRequestHandler extends RequestHandler {
 
     @Override
     void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
+        // TODO: sends connection refused in else
         GetRequest request = GetRequest.fromNetworkStream(headers);
         String neighbourId = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
         if (neighbourId.equals(getNodeState().getNodeId())) {

@@ -37,7 +37,6 @@ public class NodeState implements Node {
     private final InetAddress mCastIpAddress;
     private final int mCastPort;
     private final int storePort;
-
     private final InetSocketAddress tcpDataConnectionAddress;
     private final MembershipLogger membershipLogger;
     private final StoreFiles storeFiles;
@@ -48,7 +47,7 @@ public class NodeState implements Node {
         this.mCastPort = mCastPort;
         this.storePort = storePort;
         tcpDataConnectionAddress = new InetSocketAddress(nodeId, storePort);
-        this.membershipLogger = new MembershipLogger(nodeId);
+        this.membershipLogger = new MembershipLogger(this);
         this.state = State.WAITING_FOR_CLIENT;
         this.storeFiles = new StoreFiles(this);
     }
@@ -105,6 +104,18 @@ public class NodeState implements Node {
     }
 
     public StoreFiles getStoreFiles() { return this.storeFiles; }
+
+    public InetAddress getmCastIpAddress() {
+        return mCastIpAddress;
+    }
+
+    public MembershipLogger getMembershipLogger() {
+        return membershipLogger;
+    }
+
+    public int getmCastPort() {
+        return mCastPort;
+    }
 
     @Override
     public BigInteger getHashedNodeId() {
