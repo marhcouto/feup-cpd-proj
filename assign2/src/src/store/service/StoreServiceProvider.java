@@ -5,7 +5,6 @@ import rmi.RMIConstants;
 import store.state.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
 import utils.RmiUtils;
-
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -23,21 +22,33 @@ public class StoreServiceProvider extends RmiUtils {
         this.nodeState = store;
     }
 
+    public int getNodeIdLastDigit() {
+        String nodeId = nodeState.getNodeId();
+        var ipLastDigit = nodeId.charAt(nodeId.length() - 1);
+        var charToInt = Character.getNumericValue(ipLastDigit);
+
+        return charToInt;
+    }
+
+
     public void setupConnectionService() throws AlreadyBoundException {
         try{
             MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState);
             MembershipCommands stub = (MembershipCommands) UnicastRemoteObject.exportObject(obj, 0);
 
             Registry registry = LocateRegistry.createRegistry(this.getNodeIdLastDigit());
-
             registry.bind(this.getRmiNodeIdentifier(), stub);
         }  catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
+            System.err.println("Server exception: " + e);
             e.printStackTrace();
         }
     }
 
     public void setupDataService() throws IOException {
         new DataServiceThread(nodeState).start();
+    }
+
+    public void setupMembershipService() throws IOException {
+        new MembershipServiceThread(nodeState).start();
     }
 }

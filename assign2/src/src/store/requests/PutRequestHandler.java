@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 
 public class PutRequestHandler extends RequestHandler {
     public PutRequestHandler(NodeState state) {
@@ -17,17 +18,35 @@ public class PutRequestHandler extends RequestHandler {
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientStream) throws IOException {
         // TODO: change order of events to avoid saving and deletion
-        PutRequest request = PutRequest.fromNetworkStream(getNodeState().getNodeId(), headers, clientStream);
-        String neighbourId = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
-        if (neighbourId.equals(getNodeState().getNodeId())) {
-            responseStream.write("Success: File was stored\n".getBytes(StandardCharsets.UTF_8));
-        } else {
-            Socket neighbourNode = new Socket(neighbourId, getNodeState().getTcpDataConnectionAddress().getPort());
-            request.send(neighbourNode.getOutputStream());
+        PutRequest request = PutRequest.fromNetworkStream(getNodeState(), headers, clientStream);
+        List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
+        System.out.println(String.format("Got PUT request with ID '%s' going to replicate to: %s", request.getKey(), allDest));
+        boolean thisNodeIsDest = allDest.contains(getNodeState().getNodeId());
+        if (Files.exists(Paths.get(request.getFilePath() + "_DEL"))) {
+            Files.delete(Paths.get(request.getFilePath()));
+            // Tombstoned
+            return;
+        }
+        if (!request.needToReplicate() && thisNodeIsDest) {
+            return;
+        }
+        if (!request.needToReplicate() && !thisNodeIsDest) {
+            Files.delete(Paths.get(request.getFilePath()));
+            return;
+        }
+        for (var nodeId: allDest) {
+            if (nodeId.equals(getNodeState().getNodeId())) {
+                continue;
+            }
+            Socket neighbourNode = new Socket(nodeId, getNodeState().getTcpDataConnectionAddress().getPort());
+            new PutRequest(request, false).send(neighbourNode.getOutputStream());
             //Pipes response into client socket
             neighbourNode.getInputStream().transferTo(responseStream);
-            Files.delete(Paths.get(request.getFilePath()));
             neighbourNode.close();
         }
+        if (!thisNodeIsDest) {
+            Files.delete(Paths.get(request.getFilePath()));
+        }
+        responseStream.write("Success: File storing processed\n".getBytes(StandardCharsets.UTF_8));
     }
 }

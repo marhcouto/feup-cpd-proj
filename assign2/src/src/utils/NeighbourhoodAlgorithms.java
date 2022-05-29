@@ -9,9 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class NeighbourhoodAlgorithms {
-    private NodeState state;
+    private final static int REPLICATION_FACTOR = 3;
+    private final NodeState state;
 
     public NeighbourhoodAlgorithms(NodeState state) {
         this.state = state;
@@ -19,7 +21,7 @@ public class NeighbourhoodAlgorithms {
 
     private String findNearestNeighbour(List<? extends Node> candidates, String fileKey) {
         try {
-            List<? extends Node> sortedCandidates = state.getNeighbourNodes().stream().sorted(Comparator.comparing(Node::getNodeId)).toList();
+            List<? extends Node> sortedCandidates = candidates.stream().sorted(Comparator.comparing(Node::getHashedNodeId)).toList();
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             BigInteger requestHash = new BigInteger(1, digest.digest(fileKey.getBytes(StandardCharsets.UTF_8)));
             for (int i = 1; i < sortedCandidates.size(); i++) {
@@ -30,10 +32,50 @@ public class NeighbourhoodAlgorithms {
                 }
             }
             //If it arrives here the circular list was all traversed and the next node is the starting node
-            return candidates.get(0).getNodeId();
+            return sortedCandidates.get(0).getNodeId();
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private List<String> findNNearestNeighbours(List<? extends Node> candidates, String fileKey, int nNeigh) {
+        //TODO: Maybe can be merged with findNearestNeighbour but for now it's separated
+        List<? extends Node> sortedCandidates = candidates
+                .stream()
+                .sorted(Comparator.comparing(Node::getHashedNodeId))
+                .collect(Collectors.toCollection(ArrayList::new));
+        if (sortedCandidates.size() <= nNeigh) {
+            //If we want a bigger replication factor than the number of nodes then
+            // all nodes should contain a copy of the data
+            return sortedCandidates
+                    .stream()
+                    .map(Node::getNodeId)
+                    .toList();
+        }
+        String firstReplicationNode = findNearestNeighbour(candidates, fileKey);
+        System.out.println("Replication Nodes: " + firstReplicationNode);
+        int curNodeIdx = -1;
+        for (int i = 0; i < sortedCandidates.size(); i++) {
+            if (sortedCandidates.get(i).getNodeId().equals(firstReplicationNode)) {
+                curNodeIdx = i;
+            }
+        }
+        List<String> replicationNodes = new LinkedList<>();
+        while (replicationNodes.size() < nNeigh) {
+            replicationNodes.add(sortedCandidates.get(curNodeIdx).getNodeId());
+            curNodeIdx = (curNodeIdx + 1) % sortedCandidates.size();
+        }
+        return replicationNodes;
+    }
+
+    public List<String> findReplicationNodes(String fileKey) {
+        List<Node> candidates = new LinkedList<>(state.getNeighbourNodes());
+        candidates.add(state);
+        return findNNearestNeighbours(candidates, fileKey, REPLICATION_FACTOR);
+    }
+
+    public List<String> findReplicationHeirs(String fileKey) {
+        return findNNearestNeighbours(state.getNeighbourNodes(), fileKey, REPLICATION_FACTOR);
     }
 
     public String findRequestDest(String key) {

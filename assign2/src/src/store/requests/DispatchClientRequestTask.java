@@ -28,6 +28,9 @@ public class DispatchClientRequestTask implements Runnable {
             case RequestType.DELETE -> {
                 return new DeleteRequestHandler(nodeState);
             }
+            case RequestType.SEEK -> {
+                return new SeekRequestHandler(nodeState);
+            }
             default -> throw new InvalidByteArray("Request type not recognized");
         }
     }

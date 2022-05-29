@@ -9,7 +9,7 @@ public abstract class RequestHandler {
     private final NodeState nodeState;
     private final NeighbourhoodAlgorithms neighbourhoodAlgorithms;
 
-    public RequestHandler(NodeState nodeState) {
+    protected RequestHandler(NodeState nodeState) {
         this.nodeState = nodeState;
         this.neighbourhoodAlgorithms = new NeighbourhoodAlgorithms(nodeState);
     }
