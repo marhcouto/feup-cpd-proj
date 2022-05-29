@@ -17,7 +17,7 @@ public class JoinMode extends RmiUtils implements Mode {
     @Override
     public void execute() {
         try {
-            Registry registry = LocateRegistry.getRegistry(this.getHost(), 1099+this.getNodeIdLastDigit());
+            Registry registry = LocateRegistry.getRegistry(this.getHost(), this.getNodeIdLastDigit());
             MembershipCommands commands = (MembershipCommands) registry.lookup(this.getRmiNodeIdentifier());
             System.out.println(commands.join());
         } catch (Exception e) {

@@ -28,7 +28,7 @@ public class StoreServiceProvider extends RmiUtils {
             MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState);
             MembershipCommands stub = (MembershipCommands) UnicastRemoteObject.exportObject(obj, 0);
 
-            Registry registry = LocateRegistry.createRegistry(1099 + this.getNodeIdLastDigit());
+            Registry registry = LocateRegistry.createRegistry(this.getNodeIdLastDigit());
 
             registry.bind(this.getRmiNodeIdentifier(), stub);
         }  catch (Exception e) {

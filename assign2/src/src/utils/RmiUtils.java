@@ -6,9 +6,12 @@ public class RmiUtils {
 
     private final String nodeId;
 
+    private final int port;
+
     protected RmiUtils(String rmiNodeIdentifier, String nodeId){
         this.rmiNodeIdentifier = rmiNodeIdentifier;
         this.nodeId = nodeId;
+        this.port = 1099;
     }
 
     public int getNodeIdLastDigit(){
@@ -16,7 +19,7 @@ public class RmiUtils {
         var getIpLastId = ipSplit[ipSplit.length - 1];
         try{
             int id = Integer.parseInt(getIpLastId);
-            return id;
+            return this.port + id;
         }
         catch (NumberFormatException exception){
             exception.printStackTrace();
