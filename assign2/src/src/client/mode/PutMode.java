@@ -15,9 +15,7 @@ public class PutMode extends TcpMode {
     private Path filePath;
 
     public PutMode(String nodeAp, String filePath) throws InvalidArgumentsException {
-        // TODO: filePath to fileName
         super(nodeAp);
-        System.out.println(filePath);
         this.filePath = Paths.get(filePath);
         if (!Files.isRegularFile(this.filePath)) {
             throw new InvalidArgumentsException("File specified in arguments does not exist");
@@ -27,7 +25,8 @@ public class PutMode extends TcpMode {
     @Override
     public void execute() {
         try {
-            PutRequest putRequest = new PutRequest(fileToKey(new FileInputStream(filePath.toString())), filePath.toString());
+            String fileName = filePath.getFileName().toString();
+            PutRequest putRequest = new PutRequest(fileToKey(new FileInputStream(fileName)), filePath.toString());
             System.out.println("File processed has hash: " + putRequest.getKey());
             Socket clientSocket = new Socket(getHost(), getPort());
             putRequest.send(clientSocket.getOutputStream());
