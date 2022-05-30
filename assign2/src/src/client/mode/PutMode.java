@@ -1,19 +1,15 @@
 package client.mode;
 
-import requests.PutRequest;
+import requests.store.PutRequest;
 import utils.InvalidArgumentsException;
 
 import java.io.*;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.util.Arrays;
 
-import static utils.FileKeyCalculate.fileToKey;
+import static utils.algorithms.FileKeyCalculate.fileToKey;
 
 public class PutMode extends TcpMode {
     private Path filePath;

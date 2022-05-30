@@ -1,7 +1,7 @@
 package store;
 
-import store.service.StoreServiceProvider;
-import store.state.NodeState;
+import store.service.ServiceProvider;
+import store.node.NodeState;
 import utils.InvalidArgumentsException;
 
 import java.io.IOException;
@@ -9,14 +9,17 @@ import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 
 public class Store {
+    public static String usage() {
+        return "Usage: java store.Store <IP_mcast_addr> <IP_mcast_port> <node_id>  <Store_port>";
+    }
     public static void main(String[] args) throws IOException, RemoteException {
         try {
-            StoreServiceProvider provider = new StoreServiceProvider(NodeState.fromArguments(args));
+            ServiceProvider provider = new ServiceProvider(NodeState.fromArguments(args));
             provider.setupConnectionService();
             provider.setupDataService();
             provider.setupMembershipService();
         } catch (InvalidArgumentsException invalidArgumentsException) {
-            System.out.println(NodeState.usage());
+            System.out.println(usage());
         } catch (AlreadyBoundException e) {
             throw new RuntimeException(e);
         }

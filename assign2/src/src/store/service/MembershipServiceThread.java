@@ -1,7 +1,7 @@
 package store.service;
 
-import store.requests.DispatchMulticastRequest;
-import store.state.NodeState;
+import store.handlers.membership.DispatchMulticastMessage;
+import store.node.NodeState;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -27,7 +27,7 @@ public class MembershipServiceThread extends Thread {
                 byte[] buffer = new byte[100];
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
-                requestDispatchers.execute(new DispatchMulticastRequest(nodeState, packet));
+                requestDispatchers.execute(new DispatchMulticastMessage(nodeState, packet));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
