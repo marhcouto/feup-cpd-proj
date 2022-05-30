@@ -82,10 +82,15 @@ public class FileStorer extends NodeFileHandler {
         return filePath.toString();
     }
 
-    public Path getFile(String key) throws FileNotFoundException{
+    public Path getFilePath(String key) throws FileNotFoundException{
         Path filePath = Paths.get(String.format(this.fileFolder + "/%s", key));
         if (! Files.exists(filePath)) throw new FileNotFoundException();
         return filePath;
+    }
+
+    public boolean hasTombstone(String key) {
+        Path tombstonePath = Paths.get(String.format(this.fileFolder + "/%s_DEL", key));
+        return Files.exists(tombstonePath);
     }
 
 }

@@ -38,11 +38,12 @@ public class DeleteRequest extends NetworkSerializable implements NetworkRequest
     public void send(OutputStream outputStream) throws IOException {
         String header = RequestType.DELETE + endOfLine +
                 key + endOfLine
+                + replicate + endOfLine
                 + endOfLine;
         outputStream.write(header.getBytes(StandardCharsets.UTF_8));
     }
 
     public static DeleteRequest fromNetworkStream(String[] headers) {
-        return new DeleteRequest(headers[1]);
+        return new DeleteRequest(headers[1], Boolean.parseBoolean(headers[2]));
     }
 }
