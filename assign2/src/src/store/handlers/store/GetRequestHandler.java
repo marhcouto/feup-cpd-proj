@@ -25,7 +25,7 @@ public class GetRequestHandler extends StoreRequestHandler {
         List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
         if (allDest.contains(getNodeState().getNodeId())) {
             try {
-                Path filePath = getNodeState().getStoreFiles().getFile(request.getKey());
+                Path filePath = getNodeState().getStoreFiles().getFilePath(request.getKey());
                 Files.copy(filePath, responseStream);
                 return;
             } catch (FileNotFoundException e) {
