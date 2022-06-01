@@ -48,6 +48,10 @@ public class FileStorer extends NodeFileHandler {
         return files;
     }
 
+    public List<String> getAllKeys() throws IOException {
+        return Files.walk(Paths.get(fileFolder)).map(filePath -> filePath.getFileName().toString()).toList();
+    }
+
     public void distributeFiles() throws IOException {
         List<File> files = getFiles();
         for (File file : files) {
