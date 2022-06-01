@@ -1,0 +1,131 @@
+\documentclass[11pt]{article}
+
+% Links
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=brown,
+    linkbordercolor=1 1 1,
+    citebordercolor=1 1 1,
+    linkbordercolor=1 1 1,
+    menubordercolor=1 1 1,
+    urlbordercolor=1 1 1,
+    }
+\makeatletter
+\g@addto@macro{\UrlBreaks}{\UrlOrds}
+\makeatother
+
+% Margins
+\usepackage[left=20mm, bottom=30mm,right=20mm]{geometry}
+
+% Maths
+\usepackage{siunitx}
+\usepackage{amsmath}
+
+% Code
+\usepackage{float}
+\usepackage{listings}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+
+% Underlines
+\usepackage{ulem}
+
+% Imports
+\usepackage{import}
+
+% Graphics
+\usepackage{graphicx}
+
+% Plots
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+% Picture for title
+\usepackage[demo]{graphicx}
+\usepackage{subcaption}
+\usepackage{titlepic}
+
+% Language 
+\usepackage[english]{babel}
+
+% Headers and footers
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhf{}
+\lhead{\fancyplain{}{Paralel and Distributed Computation - Project 1}}
+\lfoot{\fancyplain{}{}}
+\cfoot{\thepage}
+
+% Paragraph indentation
+\usepackage{indentfirst}
+
+\usepackage{multirow}
+
+% Picture
+\titlepic{\begin{figure}[t!]
+\centering
+\subfloat{{\includegraphics[width=7cm]{img/unnamed.png} }}%
+\qquad
+\subfloat{{\includegraphics[width=7cm]{img/Cienciasporto.png} }}%
+%\vspace{-3.0cm}
+\end{figure}}
+% Date
+\date{Março, 2022}
+% Title
+\title{\textbf{\Huge{Performance Evaluation on a\\ Single Core} \\ \\ \\
+\Large{  Bachelors in Informatics and Computing Engineering \newline Paralel and Distributed Computation - Project 1 }}}
+% Author
+\author{
+\textbf{\Large Class 6 Group 1} \vspace{0.5em} \\
+\begin{tabular}{r l}
+	\email{up201906086@up.pt} & Marcelo Henriques Couto \\
+	\email{up201907361@up.pt} & Francisco Pinto de Oliveira \\
+	\email{up201906355@up.pt} & Rui Pedro Mendes Moreira \\
+\end{tabular}
+}
+
+% No paragraph indentation
+% \parindent=0pt
+
+% Start the document
+\begin{document}
+\maketitle
+
+\newpage
+\tableofcontents
+
+\newpage
+\input{Introduction}
+\input{ProblemDescriptionAndAlgorithmsAnalysis}
+\input{PerformanceMetrics}
+\input{ResultsAndAnalysis}
+\input{Conclusion}
+\input{Bibliography}
+
+
+\end{document}
