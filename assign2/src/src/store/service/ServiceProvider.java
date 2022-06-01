@@ -4,6 +4,7 @@ import rmi.MembershipCommands;
 import rmi.RMIConstants;
 import store.node.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
+import store.service.periodic.CheckReplicationFactor;
 import store.service.periodic.LogUpdater;
 import utils.RmiUtils;
 import java.io.IOException;
@@ -37,6 +38,7 @@ public class ServiceProvider extends RmiUtils {
 
     public void setupDataService() throws IOException {
         new StoreServiceThread(nodeState).start();
+        new CheckReplicationFactor(nodeState).schedule();
     }
 
     public void setupMembershipService() throws IOException {
