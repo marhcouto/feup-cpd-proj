@@ -32,7 +32,7 @@ public class CheckReplicationFactor extends PeriodicActor {
             socket.close();
             if (!hasFile) {
                 socket = new Socket(nodeId, nodeState.getTcpDataConnectionAddress().getPort());
-                PutRequest putRequest = new PutRequest(key, nodeState.getStoreFiles().getFile(key).toString(), false);
+                PutRequest putRequest = new PutRequest(key, nodeState.getStoreFiles().getFilePath(key).toString(), false);
                 putRequest.send(socket.getOutputStream());
                 socket.close();
             }
