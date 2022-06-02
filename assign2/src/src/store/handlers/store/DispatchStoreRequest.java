@@ -50,6 +50,7 @@ public class DispatchStoreRequest implements Runnable {
             System.out.println(e.getMessage());
         } finally {
             try {
+                System.out.println("Closing socket with: " + clientSocket.getRemoteSocketAddress().toString());
                 clientSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
