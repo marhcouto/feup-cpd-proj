@@ -39,25 +39,23 @@ public class DeleteRequestHandler extends StoreRequestHandler {
     public void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         String requestDest = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
-        if (!request.needToReplicate()) {
-            try {
-                List<String> allRepCandidates = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
-                if (allRepCandidates.contains(getNodeState().getNodeId())) {
-                    Path filePath = getNodeState().getStoreFiles().getFilePath(request.getKey());
-                    Files.delete(filePath);
-                    Files.createFile(Paths.get(filePath + "_DEL"));
-                    Files.writeString(filePath, Long.valueOf(System.currentTimeMillis()).toString(), StandardCharsets.US_ASCII);
-                }
-            } catch (FileNotFoundException e) { /* Nothing to do */}
-            responseStream.write(SUCCESS_MESSAGE.getBytes(StandardCharsets.US_ASCII));
-            return;
-        }
+        try {
+            List<String> allRepCandidates = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
+            if (allRepCandidates.contains(getNodeState().getNodeId())) {
+                Path filePath = getNodeState().getStoreFiles().getFilePath(request.getKey());
+                Files.delete(filePath);
+                Path tombstonePath = Paths.get(filePath + "_DEL");
+                Files.createFile(tombstonePath);
+                Files.writeString(tombstonePath, Long.valueOf(System.currentTimeMillis()).toString(), StandardCharsets.US_ASCII);
+            }
+        } catch (FileNotFoundException e) { /* Nothing to do */}
         if (requestDest.equals(getNodeState().getNodeId())) {
-            replicateRequest(request);
             try {
                 Files.delete(getNodeState().getStoreFiles().getFilePath(request.getKey()));
             } catch (FileNotFoundException e) { /* Nothing to do */}
-            replicateRequest(request);
+            if (request.needToReplicate()) {
+                replicateRequest(request);
+            }
             return;
         }
         // Handles communication errors with other servers

@@ -28,13 +28,16 @@ public class StoreServiceThread extends Thread {
             serverSocket.bind(new InetSocketAddress(nodeState.getTcpDataConnectionAddress().getHostString(), nodeState.getTcpDataConnectionAddress().getPort()));
             while(!Thread.interrupted()) {
                 Socket socket = serverSocket.accept();
-                System.out.println("Received new connection");
+                System.out.println(String.format("Received Request from: %s", socket.getRemoteSocketAddress().toString()));
                 requestDispatchers.execute(new DispatchStoreRequest(nodeState, socket));
+                System.out.println(String.format("Handled Request from: %s", socket.getRemoteSocketAddress().toString()));
             }
         } catch (IOException e) {
             System.out.println("Failed to open TCP server socket to listen to clients");
+            e.printStackTrace();
         } catch (CancellationException e) {
             System.out.println("Closing TCP server with the clients");
+            e.printStackTrace();
         } finally {
             try {
                 serverSocket.close();

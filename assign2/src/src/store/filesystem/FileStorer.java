@@ -28,6 +28,10 @@ public class FileStorer extends NodeFileHandler {
         this.build();
     }
 
+    public String getFileFolder() {
+        return fileFolder;
+    }
+
     @Override
     protected void build() throws IOException {
         Path filePath = Paths.get(this.fileFolder);
@@ -96,5 +100,4 @@ public class FileStorer extends NodeFileHandler {
         Path tombstonePath = Paths.get(String.format(this.fileFolder + "/%s_DEL", key));
         return Files.exists(tombstonePath);
     }
-
 }

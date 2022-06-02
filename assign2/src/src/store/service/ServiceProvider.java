@@ -6,6 +6,7 @@ import store.node.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
 import store.service.periodic.CheckReplicationFactor;
 import store.service.periodic.LogUpdater;
+import store.service.periodic.PeriodicDeleteTombstones;
 import utils.RmiUtils;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
@@ -38,7 +39,8 @@ public class ServiceProvider extends RmiUtils {
 
     public void setupDataService() throws IOException {
         new StoreServiceThread(nodeState).start();
-        new CheckReplicationFactor(nodeState).schedule();
+        //new CheckReplicationFactor(nodeState).schedule();
+        new PeriodicDeleteTombstones(nodeState).schedule();
     }
 
     public void setupMembershipService() throws IOException {

@@ -52,7 +52,6 @@ public class NeighbourhoodAlgorithms {
                     .toList();
         }
         String firstReplicationNode = findNearestNeighbour(candidates, fileKey);
-        System.out.println("Replication Nodes: " + firstReplicationNode);
         int curNodeIdx = -1;
         for (int i = 0; i < sortedCandidates.size(); i++) {
             if (sortedCandidates.get(i).getNodeId().equals(firstReplicationNode)) {
