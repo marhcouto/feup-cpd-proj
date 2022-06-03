@@ -62,11 +62,19 @@ public class DeleteRequestHandler extends StoreRequestHandler {
         }
         // Handles communication errors with other servers
         // Communication errors between server and client should be handled elsewhere
-        try(Socket rightDest = new Socket(requestDest, getNodeState().getTcpDataConnectionAddress().getPort())) {
-            request.send(rightDest.getOutputStream());
-            rightDest.getInputStream().transferTo(responseStream);
-        } catch (IOException e) {
-            responseStream.write(ERROR_DELETING_FILE.getBytes(StandardCharsets.US_ASCII));
+        for (int i = 0; i < NUM_RETRIES; i++) {
+            requestDest = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
+            try(Socket rightDest = new Socket(requestDest, getNodeState().getTcpDataConnectionAddress().getPort())) {
+                request.send(rightDest.getOutputStream());
+                rightDest.getInputStream().transferTo(responseStream);
+            } catch (IOException e) {
+                //TODO: Trigger membership changes
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ie) {
+                    return;
+                }
+            }
         }
     }
 }
