@@ -3,6 +3,7 @@ package store.handlers.membership;
 
 import requests.multicast.JoinMembershipMessage;
 import rmi.RMIConstants;
+import store.node.Neighbour;
 import store.node.NodeState;
 import store.node.State;
 
@@ -47,7 +48,7 @@ public class JoinRequestHandler extends MulticastMessageHandler {
         joinMessage.send(joinNodeOutputStream);
 
         joinNode.close();
-
+        this.getNodeState().getMembershipLogger().addEventLog(new Neighbour(nodeAp, nodeCounter));
         System.out.println(privatePort);
         System.out.println(nodeAp);
         System.out.println(nodeCounter);

@@ -29,4 +29,12 @@ public class LeaveMembershipMessage extends NetworkSerializable {
 
         outputStream.write(header.getBytes(StandardCharsets.US_ASCII));
     }
+
+    @Override
+    public String toString() {
+        return RequestType.LEAVE + endOfLine
+                + nodeAp + endOfLine
+                + nodeMembershipCounter + endOfLine
+                + endOfLine;
+    }
 }

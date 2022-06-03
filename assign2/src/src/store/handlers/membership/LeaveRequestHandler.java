@@ -18,6 +18,6 @@ public class LeaveRequestHandler extends MulticastMessageHandler{
         String nodeAp = headers[1];
         String memberShipCounter = headers[2];
 
-        this.getNodeState().getMembershipLogger().storeLog(new Neighbour(nodeAp, memberShipCounter));
+        this.getNodeState().getMembershipLogger().addEventLog(new Neighbour(nodeAp, memberShipCounter));
     }
 }

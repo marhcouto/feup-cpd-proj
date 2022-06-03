@@ -67,12 +67,20 @@ public class StoreServiceThread extends Thread {
                 Socket socket = serverSocket.accept();
                 System.out.println(String.format("Received Request from: %s", socket.getRemoteSocketAddress().toString()));
                 switch (nodeState.getState()) {
-                    case WAITING_FOR_CLIENT -> socket.getOutputStream().write("Please join first!".getBytes(StandardCharsets.US_ASCII));
-                    case JOINING -> socket.getOutputStream().write("Please wait for the node to join!".getBytes(StandardCharsets.US_ASCII));
-                    case LEAVING -> socket.getOutputStream().write("The node is leaving you will have to join later".getBytes(StandardCharsets.US_ASCII));
+                    case WAITING_FOR_CLIENT -> {
+                        socket.getOutputStream().write("Please join first!".getBytes(StandardCharsets.US_ASCII));
+                        socket.close();
+                    }
+                    case JOINING -> {
+                        socket.getOutputStream().write("Please wait for the node to join!".getBytes(StandardCharsets.US_ASCII));
+                        socket.close();
+                    }
+                    case LEAVING -> {
+                        socket.getOutputStream().write("The node is leaving you will have to join later".getBytes(StandardCharsets.US_ASCII));
+                        socket.close();
+                    }
                     default -> requestDispatchers.execute(new DispatchStoreRequest(nodeState, socket));
                 }
-                socket.close();
                 System.out.println(String.format("Handled Request from: %s", socket.getRemoteSocketAddress().toString()));
             }
             requestDispatchers.shutdown();

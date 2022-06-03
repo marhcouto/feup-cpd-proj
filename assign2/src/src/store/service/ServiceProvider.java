@@ -44,6 +44,7 @@ public class ServiceProvider extends RmiUtils {
 
     public void setupMembershipService() {
         membershipServiceThread = MembershipServiceThread.fromState(nodeState);
+        membershipServiceThread.start();
     }
 
     public void stopDataService() {

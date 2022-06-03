@@ -8,6 +8,7 @@ import utils.algorithms.NeighbourhoodAlgorithms;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CheckReplicationFactor extends PeriodicActor {
@@ -43,7 +44,8 @@ public class CheckReplicationFactor extends PeriodicActor {
     public void run() {
         System.out.println("Check replication factor");
         try {
-            List<String> allKeys = nodeState.getStoreFiles().getAllKeys();
+            List<String> allKeys = new ArrayList<>(nodeState.getStoreFiles().getAllKeys());
+            allKeys.removeIf(elem -> elem.equals("files"));
             if (allKeys.isEmpty()) {
                 return;
             }

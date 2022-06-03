@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.nio.charset.StandardCharsets;
 
 public class DispatchMulticastMessage implements Runnable {
     private final NodeState nodeState;
@@ -39,6 +40,10 @@ public class DispatchMulticastMessage implements Runnable {
         DataInputStream inputStream = new DataInputStream(new ByteArrayInputStream(packet.getData(), packet.getOffset(), packet.getLength()));
         try {
             String[] headers = NetworkSerializable.getHeader(inputStream);
+            System.out.println("Got multicast message: ");
+            for(int i = 0; i < headers.length; i++) {
+                System.out.println(headers[i]);
+            }
             assert headers != null;
             MulticastMessageHandler handler = this.getRequestHandler(headers[0]);
             handler.execute(headers, inputStream);

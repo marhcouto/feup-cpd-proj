@@ -77,8 +77,10 @@ public class MembershipLogger extends NodeFileHandler {
         Files.writeString(path, stringBuilder);
     }
 
-    private void addEventLog(Neighbour neighbour) {
+    public void addEventLog(Neighbour neighbour) {
+        System.out.println("Ran Event Log");
         for (Neighbour n : log) {
+            System.out.println(n.toString());
             if (n.equals(neighbour) && Integer.parseInt(n.getMembershipCounter()) < Integer.parseInt(neighbour.getMembershipCounter())) {
                 log.remove(n);
                 log.add(neighbour);
@@ -96,7 +98,7 @@ public class MembershipLogger extends NodeFileHandler {
     public List<Neighbour> getActiveNodes() {
         List<Neighbour> activeNodes = new ArrayList<>();
         for (Neighbour n : log) {
-            if (Integer.parseInt(n.getMembershipCounter()) % 2 != 0 && !activeNodes.contains(n)) activeNodes.add(n);
+            if (Integer.parseInt(n.getMembershipCounter()) % 2 == 0 && !activeNodes.contains(n)) activeNodes.add(n);
         }
         return activeNodes;
     }

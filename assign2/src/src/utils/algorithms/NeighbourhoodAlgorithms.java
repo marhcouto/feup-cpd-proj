@@ -38,7 +38,6 @@ public class NeighbourhoodAlgorithms {
     }
 
     private List<String> findNNearestNeighbours(List<? extends Node> candidates, String fileKey, int nNeigh) {
-        //TODO: Maybe can be merged with findNearestNeighbour but for now it's separated
         List<? extends Node> sortedCandidates = candidates
                 .stream()
                 .sorted(Comparator.comparing(Node::getHashedNodeId))

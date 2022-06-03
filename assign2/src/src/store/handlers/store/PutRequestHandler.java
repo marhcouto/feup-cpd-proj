@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
 
 public class PutRequestHandler extends StoreRequestHandler {
@@ -21,7 +22,7 @@ public class PutRequestHandler extends StoreRequestHandler {
     }
 
     private void replicateRequest(PutRequest request) {
-        List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
+        List<String> allDest = new LinkedList<>(getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey()));
         allDest.removeIf(elem -> getNodeState().getNodeId().equals(elem));
         PutRequest nonReplicateRequest = new PutRequest(request, false);
         for (var nodeId: allDest) {

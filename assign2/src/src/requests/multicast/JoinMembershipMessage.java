@@ -28,24 +28,22 @@ public class JoinMembershipMessage extends NetworkSerializable {
 
     @Override
     public void send(OutputStream outputStream) throws IOException {
-
         String header = RequestType.JOIN + endOfLine
                 + nodeId + endOfLine
                 + nodePrivatePort + endOfLine
                 + nodeMembershipCounter + endOfLine
                 + endOfLine;
-
         outputStream.write(header.getBytes(StandardCharsets.US_ASCII));
     }
 
     @Override
     public String toString(){
-        String header = RequestType.JOIN + endOfLine + endOfLine;
-        String privatePort = nodePrivatePort + endOfLine;
+        String header = RequestType.JOIN + endOfLine;
         String nodeAp = nodeId + endOfLine;
+        String privatePort = nodePrivatePort + endOfLine;
         String nodeCounter = nodeMembershipCounter + endOfLine;
 
-        return header + privatePort + nodeAp + nodeCounter;
+        return header + nodeAp + privatePort + nodeCounter + endOfLine;
     }
 
 }

@@ -14,6 +14,7 @@ public abstract class NetworkSerializable {
         byte[] header = new byte[MAX_HEADER_SIZE];
         for (int i = 0; i < MAX_HEADER_SIZE; i++) {
             int curByte = is.read();
+            System.out.println((char) curByte);
             if (curByte == -1) {
                 break;
             }
