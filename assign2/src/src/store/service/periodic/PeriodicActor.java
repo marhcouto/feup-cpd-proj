@@ -18,5 +18,17 @@ public abstract class PeriodicActor implements Runnable {
         scheduler.scheduleAtFixedRate(this, 1, getInterval(), TimeUnit.SECONDS);
     }
 
+    public void stopExecution() {
+        scheduler.shutdown();
+        try {
+            if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            scheduler.shutdownNow();
+        }
+    }
+
     protected abstract long getInterval();
 }

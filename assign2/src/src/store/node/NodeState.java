@@ -68,11 +68,11 @@ public class NodeState extends Node {
         return new NodeState(nodeId, mCastIpAddress, mCastPort, storePort);
     }
 
-    public State getNodeState(){
+    public synchronized State getState(){
         return this.state;
     }
 
-    public void changeNodeState(State state){
+    public synchronized void setState(State state) {
         this.state = state;
     }
 

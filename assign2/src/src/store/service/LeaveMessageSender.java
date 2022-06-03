@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
 
-public class LeaveMessageSender implements Runnable{
+public class LeaveMessageSender implements Runnable {
 
     private final NodeState nodeState;
     public LeaveMessageSender(NodeState nodeState){
