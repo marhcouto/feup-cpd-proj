@@ -28,7 +28,6 @@ public class ServiceProvider extends RmiUtils {
         try{
             MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState, this);
             MembershipCommands stub = (MembershipCommands) UnicastRemoteObject.exportObject(obj, 0);
-
             Registry registry = LocateRegistry.createRegistry(this.getNodeIdLastDigit());
             registry.bind(this.getRmiNodeIdentifier(), stub);
         }  catch (Exception e) {

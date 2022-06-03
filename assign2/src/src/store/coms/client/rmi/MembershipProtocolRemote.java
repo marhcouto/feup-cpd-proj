@@ -1,11 +1,14 @@
 package store.coms.client.rmi;
 
+import requests.multicast.JoinMembershipMessage;
 import rmi.MembershipCommands;
 import store.node.State;
 import store.node.NodeState;
 import store.service.*;
 
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 
 public class MembershipProtocolRemote implements MembershipCommands {
@@ -52,14 +55,25 @@ public class MembershipProtocolRemote implements MembershipCommands {
         /* Banana Code needs small refactor, so that timeout can run on a thread, just refactor to future abd execute */
 
         /* Wait for the private port to be opened in the JoinServiceThread*/
-        while(!joinServiceThread.getPortStatus()){}
+        while(!joinServiceThread.getPortStatus());
 
-        JoinMessageSender joinMulticastMessage = new JoinMessageSender(nodeState);
-
-        joinMulticastMessage.run();
-
-        /* Wait for TCP socket to close (TIMEOUT/SUCCESS)*/
-        while(joinServiceThread.isAlive());
+        int privatePort = joinServiceThread.getPort();
+        try{
+            System.out.println("Sending multicast join message from node: '" + nodeState.getNodeId() + "'");
+            MulticastSocket socket;
+            socket = new MulticastSocket();
+            JoinMembershipMessage joinMessage = new JoinMembershipMessage(Integer.toString(privatePort), nodeState.getMembershipLogger().getMembershipCounter(), nodeState.getNodeId());
+            DatagramPacket packet = new DatagramPacket(joinMessage.toString().getBytes(), joinMessage.toString().length(), nodeState.getmCastIpAddress(), nodeState.getmCastPort());
+            socket.send(packet);
+            socket.close();
+            /* Wait for TCP socket to close (TIMEOUT/SUCCESS)*/
+            // while(joinServiceThread.isAlive());
+            joinServiceThread.join();
+        } catch (IOException e){
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         joinResponsesCounter += joinServiceThread.getConnectionsEstablished();
 

@@ -1,11 +1,14 @@
 package store.service;
 
-import jdk.swing.interop.SwingInterOpUtils;
+import requests.NetworkSerializable;
+import requests.multicast.MembershipMessage;
 import store.handlers.store.DispatchStoreRequest;
 import store.node.Node;
 import store.node.NodeState;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Member;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,20 +22,18 @@ public class JoinServiceThread extends Thread {
 
     /*Maybe refactor the following 3 declarations into constants*/
     private boolean isPortOpen;
+    public static final int MAX_CONNECTIONS = 3;
+    public static final int MAX_TIMEOUT = 10000; /*25 seconds*/
+    private ServerSocket serverSocket;
+    private final NodeState nodeState;
+    private int flag = 0;
+    private int connectionsEstablished;
+    private final int port = 1699;
 
-    private int MAX_CONNECTIONS = 3;
 
-    private int MAX_TIMEOUT = 10000; /*25 seconds*/
 
     ExecutorService requestDispatchers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
 
-    private ServerSocket serverSocket;
-
-    private final NodeState nodeState;
-
-    private int flag = 0;
-
-    private int connectionsEstablished;
 
     public JoinServiceThread(NodeState nodeState) {
         this.isPortOpen = false;
@@ -71,6 +72,8 @@ public class JoinServiceThread extends Thread {
         }
     }
 
+    public int getPort() { return this.port; }
+
     public Thread timeoutThread(){
         return new Thread(new Runnable() {
             @Override
@@ -93,14 +96,16 @@ public class JoinServiceThread extends Thread {
              */
             System.out.println("Opening TCP private connection for node '" + nodeState.getNodeId() + "' on port: 1699");
             serverSocket = new ServerSocket();
-            serverSocket.bind(new InetSocketAddress(nodeState.getNodeId(), 1699));
+            serverSocket.bind(new InetSocketAddress(nodeState.getNodeId(), this.port));
             setPortOpen();
             /* Refactor to future, but this solution works just fine now */
-
             timeoutThread().start();
 
             while (!Thread.interrupted() && connectionsEstablished != MAX_CONNECTIONS) {
                 Socket socket = serverSocket.accept();
+                InputStream inputStream = socket.getInputStream();
+                String[] headers = NetworkSerializable.getHeader(inputStream);
+                MembershipMessage.processMessage(this.nodeState, inputStream);
                 incrementConnectionCounter();
                 System.out.println("Received new connection");
                 System.out.println("Socket content: " + socket.getInputStream());

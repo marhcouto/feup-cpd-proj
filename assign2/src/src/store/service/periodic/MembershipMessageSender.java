@@ -23,6 +23,7 @@ public class MembershipMessageSender extends PeriodicActor {
     @Override
     public void run() {
         if (!shouldSendMembership()) return;
+        System.out.println("MULTICASTING MEMBERSHIP");
         try {
             MulticastSocket socket;
             socket = new MulticastSocket();

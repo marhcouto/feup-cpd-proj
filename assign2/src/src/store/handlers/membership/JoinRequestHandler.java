@@ -2,6 +2,7 @@ package store.handlers.membership;
 
 
 import requests.multicast.JoinMembershipMessage;
+import requests.multicast.MembershipMessage;
 import rmi.RMIConstants;
 import store.node.Neighbour;
 import store.node.NodeState;
@@ -25,6 +26,8 @@ public class JoinRequestHandler extends MulticastMessageHandler {
         String privatePort = headers[2];
         String nodeCounter = headers[3];
 
+        System.out.println("RECEIVED JOIN");
+
         if(nodeAp.equals(this.getNodeState().getNodeId())){
             return;
         }
@@ -37,20 +40,14 @@ public class JoinRequestHandler extends MulticastMessageHandler {
         System.out.println("Node with ID '" + this.getNodeState().getNodeId() + "' received" +
                 "multicast JOIN message from node '" + nodeAp + "'");
 
-        Socket joinNode = new Socket(nodeAp, 1699);
-        OutputStream joinNodeOutputStream = joinNode.getOutputStream();
+        Socket socket = new Socket(nodeAp, Integer.parseInt(privatePort));
+        OutputStream joiningNodeOutputStream = socket.getOutputStream();
 
         /*Socket is now opened*/
         /* Needs to send membership message through the TCP port */
-
-        JoinMembershipMessage joinMessage = new JoinMembershipMessage("1699",this.getNodeState().getMembershipLogger().getMembershipCounter(), this.getNodeState().getNodeId());
-
-        joinMessage.send(joinNodeOutputStream);
-
-        joinNode.close();
         this.getNodeState().getMembershipLogger().addEventLog(new Neighbour(nodeAp, nodeCounter));
-        System.out.println(privatePort);
-        System.out.println(nodeAp);
-        System.out.println(nodeCounter);
+        MembershipMessage membershipMessage = new MembershipMessage(getNodeState().getMembershipLogger().getLog(), getNodeState().getMembershipLogger().getActiveNodes());
+        membershipMessage.send(joiningNodeOutputStream);
+        socket.close();
     }
 }

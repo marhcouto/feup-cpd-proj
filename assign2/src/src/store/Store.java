@@ -12,11 +12,10 @@ public class Store {
     public static String usage() {
         return "Usage: java store.Store <IP_mcast_addr> <IP_mcast_port> <node_id>  <Store_port>";
     }
-    public static void main(String[] args) throws IOException, RemoteException {
+    public static void main(String[] args) throws IOException {
         try {
             ServiceProvider provider = new ServiceProvider(NodeState.fromArguments(args));
             provider.setupConnectionService();
-            provider.setupMembershipService();
         } catch (InvalidArgumentsException invalidArgumentsException) {
             System.out.println(usage());
         } catch (AlreadyBoundException e) {

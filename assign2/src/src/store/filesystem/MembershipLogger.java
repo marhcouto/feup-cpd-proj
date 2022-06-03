@@ -80,12 +80,15 @@ public class MembershipLogger extends NodeFileHandler {
     public void addEventLog(Neighbour neighbour) {
         System.out.println("Ran Event Log");
         for (Neighbour n : log) {
-            System.out.println(n.toString());
-            if (n.equals(neighbour) && Integer.parseInt(n.getMembershipCounter()) < Integer.parseInt(neighbour.getMembershipCounter())) {
+            System.out.println("Node:" + n.toString());
+            if (!n.equals(neighbour)) continue;
+            System.out.println("FOUND HIM");
+            if (Integer.parseInt(n.getMembershipCounter()) < Integer.parseInt(neighbour.getMembershipCounter())) {
+                System.out.println("UPDATING");
                 log.remove(n);
                 log.add(neighbour);
-                return;
             }
+            return;
         }
         log.add(neighbour);
     }
