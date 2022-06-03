@@ -1,0 +1,23 @@
+\section{Performance Metrics}
+
+\subsection{PAPI events}
+
+As previously stated, and as indicated by the project guidelines, the \textbf{Perfomance API} (PAPI) was used to collect data directly from the CPU, which we used to better analyze the performance of each algorithm. 
+PAPI is an API that collects information on the processor's execution and performance in the form of events, such as data cache misses and cache accesses. As it uses CPU hardware counters for this purpose and so do each event, the number of events we can capture and study is limited. The CPU we worked with had 10 counters and PAPI itself uses 4, meaning we only had 6 left. 
+For this reason, we chose to capture 4 events:
+
+\begin{itemize}
+    \item \textbf{PAPI\_L1\_DCM - } Level 1 cache misses
+    \item \textbf{PAPI\_L2\_DCM - } Level 2 cache misses
+    \item \textbf{PAPI\_L2\_DCA - } Level 2 cache accesses
+    \item \textbf{PAPI\_L3\_DCA - } Level 3 cache accesses
+\end{itemize}
+
+Our choice was based on the necessity to capture the cache miss and cache access variations from each algorithm. As explained in the previous section, the performance improvements from each algorithm to the next one base themselves mostly in reducing cache misses of the elements of the matrixes. 
+
+\textbf{PAPI\_L2\_DCM} and \textbf{PAPI\_L3\_DCA} are derived events, meaning PAPI needs to collect data on to other events to calculate the values for these ones. For that matter, these two events require the use of two counters each, meaning that we could only register two more normal events. We opted to register Level 3 cache accesses because there were no events available to register Level 1 cache accesses. 
+
+\paragraph{Note} Level 1 2 and 3 cache allude to the level of proximity of the cache to a processor core. 
+
+\subsection{Hardware}
+All the benchmarks were ran using a Intel Core i7-9750H
