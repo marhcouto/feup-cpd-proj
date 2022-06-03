@@ -39,7 +39,7 @@ public class ServiceProvider extends RmiUtils {
 
     public void setupDataService() throws IOException {
         new StoreServiceThread(nodeState).start();
-        //new CheckReplicationFactor(nodeState).schedule();
+        new CheckReplicationFactor(nodeState).schedule();
         new PeriodicDeleteTombstones(nodeState).schedule();
     }
 

@@ -21,4 +21,12 @@ public abstract class Node {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Node n)) return false;
+
+        return n.getNodeId().equals(this.getNodeId());
+    }
 }

@@ -8,7 +8,6 @@ import store.service.JoinServiceThread;
 import store.service.LeaveMessageSender;
 import store.service.MembershipServiceThread;
 
-import java.net.Socket;
 import java.rmi.RemoteException;
 
 public class MembershipProtocolRemote implements MembershipCommands {
@@ -21,7 +20,7 @@ public class MembershipProtocolRemote implements MembershipCommands {
 
     private int joinResponsesCounter = 0;
 
-    private MembershipServiceThread membershipThread;
+    private final MembershipServiceThread membershipThread;
 
     public MembershipProtocolRemote(NodeState nodeState){
         this.nodeState = nodeState;
@@ -32,9 +31,9 @@ public class MembershipProtocolRemote implements MembershipCommands {
         return this.nodeState;
     }
 
-    /*If node waiting for client, means that the node has been created but waiting for the join command*/
+    /* If node waiting for client, means that the node has been created but waiting for the join command */
     public synchronized Boolean nodeAlreadyJoining(){
-        return !this.nodeState.getNodeState().equals(State.WAITING_FOR_CLIENT);
+        return !this.nodeState.getState().equals(State.WAITING_FOR_CLIENT);
     }
 
     public void joinProtocol(){
