@@ -41,6 +41,7 @@ public class CheckReplicationFactor extends PeriodicActor {
 
     @Override
     public void run() {
+        System.out.println("Check replication factor");
         try {
             List<String> allKeys = nodeState.getStoreFiles().getAllKeys();
             if (allKeys.isEmpty()) {

@@ -30,30 +30,31 @@ public class GetRequestHandler extends StoreRequestHandler {
                 return;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                responseStream.write("ERROR: Key not found\n".getBytes(StandardCharsets.UTF_8));
+                responseStream.write(GetRequest.ERROR_NOT_FOUND.getBytes(StandardCharsets.UTF_8));
             }
         }
+        if (!request.needToReplicate()) {
+            return;
+        }
         // Removes the actual node because we already checked if the file existed
+        GetRequest nonReplicateRequest = new GetRequest(request, false);
         allDest.removeIf(nodeId -> nodeId.equals(getNodeState().getNodeId()));
-        SeekRequest seekRequest = new SeekRequest(request.getKey());
         for (var nodeId: allDest) {
             try {
                 Socket neighbourSocket = new Socket(nodeId, 3000);
-                OutputStream neighbourOutputStream = neighbourSocket.getOutputStream();
-                InputStream neighbourInputStream = neighbourSocket.getInputStream();
-                seekRequest.send(neighbourOutputStream);
-                String seekResponse = new String(neighbourInputStream.readAllBytes(), StandardCharsets.US_ASCII);
-                neighbourSocket.close();
-                if (seekResponse.equals(SeekRequest.FILE_FOUND_MESSAGE)) {
-                    neighbourSocket = new Socket(nodeId, 3000);
-                    request.send(neighbourSocket.getOutputStream());
-                    neighbourSocket.getInputStream().transferTo(responseStream);
-                    neighbourSocket.close();
-                    break;
+                nonReplicateRequest.send(neighbourSocket.getOutputStream());
+                InputStream is = neighbourSocket.getInputStream();
+                byte[] responseInit = is.readNBytes(GetRequest.ERROR_NOT_FOUND_SIZE);
+                if (responseInit.length != GetRequest.ERROR_NOT_FOUND_SIZE || !new String(responseInit, StandardCharsets.US_ASCII).equals(GetRequest.ERROR_NOT_FOUND)) {
+                    responseStream.write(responseInit);
+                    is.transferTo(responseStream);
+                    return;
                 }
+                neighbourSocket.close();
             } catch (IOException e) {
                 break;
             }
         }
+        responseStream.write(GetRequest.ERROR_NOT_FOUND.getBytes(StandardCharsets.US_ASCII));
     }
 }

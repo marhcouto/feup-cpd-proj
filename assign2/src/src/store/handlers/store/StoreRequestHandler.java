@@ -9,6 +9,8 @@ public abstract class StoreRequestHandler {
     private final NodeState nodeState;
     private final NeighbourhoodAlgorithms neighbourhoodAlgorithms;
 
+    public static final int NUM_RETRIES = 3;
+
     protected StoreRequestHandler(NodeState nodeState) {
         this.nodeState = nodeState;
         this.neighbourhoodAlgorithms = new NeighbourhoodAlgorithms(nodeState);
