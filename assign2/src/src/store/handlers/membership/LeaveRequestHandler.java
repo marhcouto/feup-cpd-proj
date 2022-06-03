@@ -1,6 +1,7 @@
 package store.handlers.membership;
 
 import requests.multicast.LeaveMembershipMessage;
+import store.node.Neighbour;
 import store.node.NodeState;
 
 import java.io.IOException;
@@ -14,6 +15,9 @@ public class LeaveRequestHandler extends MulticastMessageHandler{
 
     @Override
     public void execute(String[] headers, InputStream inputStream) throws IOException {
+        String nodeAp = headers[1];
+        String counter = headers[2];
 
+        this.getNodeState().getMembershipLogger().storeLog(new Neighbour(nodeAp, memberShipCounter));
     }
 }

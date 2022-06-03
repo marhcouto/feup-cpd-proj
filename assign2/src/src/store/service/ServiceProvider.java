@@ -4,9 +4,7 @@ import rmi.MembershipCommands;
 import rmi.RMIConstants;
 import store.node.NodeState;
 import store.coms.client.rmi.MembershipProtocolRemote;
-import store.service.periodic.CheckReplicationFactor;
 import store.service.periodic.LogUpdater;
-import store.service.periodic.PeriodicDeleteTombstones;
 import utils.RmiUtils;
 import java.io.IOException;
 import java.rmi.AlreadyBoundException;
@@ -16,6 +14,8 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class ServiceProvider extends RmiUtils {
     private final NodeState nodeState;
+    private StoreServiceThread storeServiceThread = null;
+    private MembershipServiceThread membershipServiceThread = null;
 
     /*Rmi register identifier equals to nodeap:MemberShipService so that each node can have different bindings*/
 
@@ -26,7 +26,7 @@ public class ServiceProvider extends RmiUtils {
 
     public void setupConnectionService() throws AlreadyBoundException {
         try{
-            MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState);
+            MembershipProtocolRemote obj = new MembershipProtocolRemote(nodeState, this);
             MembershipCommands stub = (MembershipCommands) UnicastRemoteObject.exportObject(obj, 0);
 
             Registry registry = LocateRegistry.createRegistry(this.getNodeIdLastDigit());
@@ -37,14 +37,21 @@ public class ServiceProvider extends RmiUtils {
         }
     }
 
-    public void setupDataService() throws IOException {
-        new StoreServiceThread(nodeState).start();
-        //new CheckReplicationFactor(nodeState).schedule();
-        new PeriodicDeleteTombstones(nodeState).schedule();
+    public void setupDataService() {
+        storeServiceThread = StoreServiceThread.fromState(nodeState);
+        storeServiceThread.start();
     }
 
-    public void setupMembershipService() throws IOException {
-        new MembershipServiceThread(nodeState).start();
-        new LogUpdater(nodeState).schedule();
+    public void setupMembershipService() {
+        membershipServiceThread = MembershipServiceThread.fromState(nodeState);
+    }
+
+    public void stopDataService() {
+        storeServiceThread.interrupt();
+        storeServiceThread = null;
+    }
+
+    public void stopMembershipService() {
+        membershipServiceThread.interrupt();
     }
 }

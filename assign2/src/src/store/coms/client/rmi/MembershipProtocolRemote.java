@@ -3,10 +3,7 @@ package store.coms.client.rmi;
 import rmi.MembershipCommands;
 import store.node.State;
 import store.node.NodeState;
-import store.service.JoinMessageSender;
-import store.service.JoinServiceThread;
-import store.service.LeaveMessageSender;
-import store.service.MembershipServiceThread;
+import store.service.*;
 
 import java.net.Socket;
 import java.rmi.RemoteException;
@@ -22,10 +19,11 @@ public class MembershipProtocolRemote implements MembershipCommands {
     private int joinResponsesCounter = 0;
 
     private MembershipServiceThread membershipThread;
+    private ServiceProvider serviceProvider;
 
-    public MembershipProtocolRemote(NodeState nodeState){
+    public MembershipProtocolRemote(NodeState nodeState, ServiceProvider serviceProvider){
         this.nodeState = nodeState;
-        this.membershipThread = new MembershipServiceThread(this.nodeState);
+        this.serviceProvider = serviceProvider;
     }
 
     public NodeState getNodeState(){
@@ -33,12 +31,12 @@ public class MembershipProtocolRemote implements MembershipCommands {
     }
 
     /*If node waiting for client, means that the node has been created but waiting for the join command*/
-    public synchronized Boolean nodeAlreadyJoining(){
-        return !this.nodeState.getNodeState().equals(State.WAITING_FOR_CLIENT);
+    public Boolean nodeAlreadyJoining(){
+        return this.nodeState.getState().equals(State.JOINING);
     }
 
     public void joinProtocol(){
-        nodeState.changeNodeState(State.JOINING);
+        nodeState.setState(State.JOINING);
 
         if(nodeState.getNodeId().equals("127.0.0.1")){
             System.out.println("Entering join membership protocol");
@@ -90,10 +88,11 @@ public class MembershipProtocolRemote implements MembershipCommands {
         joinProtocol();
 
         /* After join protocol was successfully executed */
-        nodeState.changeNodeState(State.JOINED);
+        nodeState.setState(State.JOINED);
 
         /* Start actively listening from multicast after joining */
-        membershipThread.start();
+        serviceProvider.setupMembershipService();
+        serviceProvider.setupDataService();
 
         return "Node Id: '" + nodeState.getNodeId() + "' Membership Protocol for multicast join RMI";
     }
@@ -101,18 +100,19 @@ public class MembershipProtocolRemote implements MembershipCommands {
     @Override
     public String leave() throws RemoteException {
         //Multicast leave
-
         LeaveMessageSender leaveMulticastMessage = new LeaveMessageSender(nodeState);
 
 
         System.out.println("Sending multicast node to leave");
+        nodeState.setState(State.LEAVING);
         leaveMulticastMessage.run();
 
         //sync status -> leave
 
         System.out.println("Node status WAITING_FOR_CLIENT");
-        nodeState.changeNodeState(State.WAITING_FOR_CLIENT);
-
+        serviceProvider.stopDataService();
+        serviceProvider.stopMembershipService();
+        nodeState.setState(State.WAITING_FOR_CLIENT);
 
         return "Membership Protocol for multicast leave RMI";
 
