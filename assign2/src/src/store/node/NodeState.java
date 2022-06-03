@@ -105,4 +105,8 @@ public class NodeState extends Node {
         neighbours.removeIf(elem -> elem.getNodeId().equals(getNodeId()));
         return neighbours;
     }
+
+    public synchronized State getNodeStateSync(){
+        return this.state;
+    }
 }

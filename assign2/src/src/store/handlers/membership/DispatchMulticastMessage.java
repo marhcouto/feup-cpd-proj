@@ -24,8 +24,10 @@ public class DispatchMulticastMessage implements Runnable {
                 return new MembershipMessageHandler(nodeState);
             }
             case RequestType.JOIN -> {
-                // TODO: implement this
-                return null;
+                return new JoinRequestHandler(nodeState);
+            }
+            case RequestType.LEAVE -> {
+                return new LeaveRequestHandler(nodeState);
             }
             default -> throw new InvalidByteArray("Request type not recognized");
         }
