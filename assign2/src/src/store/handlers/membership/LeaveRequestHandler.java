@@ -16,7 +16,7 @@ public class LeaveRequestHandler extends MulticastMessageHandler{
     @Override
     public void execute(String[] headers, InputStream inputStream) throws IOException {
         String nodeAp = headers[1];
-        String counter = headers[2];
+        String memberShipCounter = headers[2];
 
         this.getNodeState().getMembershipLogger().storeLog(new Neighbour(nodeAp, memberShipCounter));
     }

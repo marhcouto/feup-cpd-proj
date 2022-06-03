@@ -5,7 +5,7 @@ import store.node.State;
 import store.node.NodeState;
 import store.service.*;
 
-import java.net.Socket;
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 public class MembershipProtocolRemote implements MembershipCommands {
@@ -17,10 +17,7 @@ public class MembershipProtocolRemote implements MembershipCommands {
     private int MAX_RETRIES = 2;
 
     private int joinResponsesCounter = 0;
-
-    private MembershipServiceThread membershipThread;
     private ServiceProvider serviceProvider;
-
     public MembershipProtocolRemote(NodeState nodeState, ServiceProvider serviceProvider){
         this.nodeState = nodeState;
         this.serviceProvider = serviceProvider;
@@ -31,11 +28,11 @@ public class MembershipProtocolRemote implements MembershipCommands {
     }
 
     /*If node waiting for client, means that the node has been created but waiting for the join command*/
-    public Boolean nodeAlreadyJoining(){
+    public Boolean nodeAlreadyJoining() {
         return this.nodeState.getState().equals(State.JOINING);
     }
 
-    public void joinProtocol(){
+    public void joinProtocol() {
         nodeState.setState(State.JOINING);
 
         if(nodeState.getNodeId().equals("127.0.0.1")){
@@ -89,6 +86,11 @@ public class MembershipProtocolRemote implements MembershipCommands {
 
         /* After join protocol was successfully executed */
         nodeState.setState(State.JOINED);
+        try {
+            nodeState.getMembershipLogger().updateCounter();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         /* Start actively listening from multicast after joining */
         serviceProvider.setupMembershipService();
@@ -114,6 +116,11 @@ public class MembershipProtocolRemote implements MembershipCommands {
         serviceProvider.stopMembershipService();
         nodeState.setState(State.WAITING_FOR_CLIENT);
 
+        try {
+            nodeState.getMembershipLogger().updateCounter();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return "Membership Protocol for multicast leave RMI";
 
     }

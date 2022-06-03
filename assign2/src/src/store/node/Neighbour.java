@@ -35,13 +35,4 @@ public class Neighbour extends Node implements FileStorable {
     public String toString() {
         return getNodeId() + "-" + getMembershipCounter();
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof Neighbour)) return false;
-
-        Neighbour n = (Neighbour) o;
-        return n.getNodeId().equals(this.getNodeId());
-    }
 }

@@ -5,13 +5,9 @@ import store.filesystem.FileStorer;
 import utils.InvalidArgumentsException;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /*
@@ -95,13 +91,7 @@ public class NodeState extends Node {
     }
 
     public List<Neighbour> getNeighbourNodes() {
-        //TODO: Implement this function that must return all the neighbours of the current node
-        LinkedList<Neighbour> neighbours = new LinkedList<>(Arrays.asList(
-                new Neighbour("127.0.0.1", "1"),
-                new Neighbour("127.0.0.2", "2"),
-                new Neighbour("127.0.0.3", "3"),
-                new Neighbour("127.0.0.4", "4")
-        ));
+        List<Neighbour> neighbours = membershipLogger.getActiveNodes();
         neighbours.removeIf(elem -> elem.getNodeId().equals(getNodeId()));
         return neighbours;
     }
