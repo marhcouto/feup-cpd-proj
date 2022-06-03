@@ -1,25 +1,22 @@
 package client.mode;
 
 import rmi.MembershipCommands;
+import utils.RmiUtils;
 
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
-public class LeaveMode implements Mode {
-    private final String host;
-    private final String service;
+public class LeaveMode extends RmiUtils implements Mode {
 
     public LeaveMode(String nodeAp) {
-        String[] apComponent = nodeAp.split(":");
-        host = apComponent[0];
-        service = apComponent[1];
+        super(nodeAp, nodeAp.split(":")[0]);
     }
 
     @Override
     public void execute() {
         try {
-            Registry registry = LocateRegistry.getRegistry(host);
-            MembershipCommands commands = (MembershipCommands) registry.lookup(service);
+            Registry registry = LocateRegistry.getRegistry(this.getHost(), this.getNodeIdLastDigit());
+            MembershipCommands commands = (MembershipCommands) registry.lookup(this.getRmiNodeIdentifier());
             System.out.println(commands.leave());
         } catch (Exception e) {
             System.out.println("Couldn't connect to remote");

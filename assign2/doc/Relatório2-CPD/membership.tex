@@ -1,0 +1,101 @@
+\section{Membership Service}
+
+The membership service is composed by JOIN, LEAVE and MEMBERSHIP messages. 
+
+The classes where the membership service is implemented are divided into:
+
+\begin{itemize}
+    \item \textbf{Message structure:} package \textbf{requests.multicast}
+    \item \textbf{Request handling:} package \textbf{store.handlers.membership}
+    \item \textbf{RMI:} packages \textbf{rmi} and \textbf{store.coms.client.rmi}
+    \item \textbf{Periodic message sending and main service prodivers}: packages \textbf{store.service.periodic} and \textbf{store.service}
+\end{itemize}
+
+
+\subsection{Join Message} 
+
+Test client sends a join through RMI, the sever ackowlodges it and starts the join protocol.
+The join protocol can be splitted in two phases.
+\begin{itemize}
+    \item The multicast message sent by the joining node
+    \item TCP connections sent by the other nodes in the cluster to a private port in the joining node
+\end{itemize}
+
+
+\subsubsection{Multicast Join Message} 
+
+\begin{enumerate}
+    \item A join message is sent through the multicast address for a specific cluster. To avoid bottlenecks and to allow this multicast message was sent using a thread
+    \item Before sending the multicast Join message, a private port is opened in a different thread and afterwards the Join multicast message is issued. The other nodes in the cluster after receiving the multicast,  send through the node private port , a membership message containing the logs of the node
+    \item The thread listening to the cluster nodes responses, has a timeout protocol set and If at least 3 connections aren't established through the TCP private port, the protocol is executed again, until the maximum retry attempts are reached
+    \item The thread only listens to the port until three connections are established to avoid bottlenecks, or a timeout is reached.
+    \begin{itemize}
+        \item If after all the retries are performed no connections are established, the node assumes that he is alone in the cluster
+        \item If only one/two connection is/are established, the node assumes that the cluster has one/two node(s) , starting the multicast and merging the logs information that are sent periodically to the multicast
+        \item If three connections are established, the node joins the protocol correctly and starts listening to the multicast
+    \end{itemize}
+\end{enumerate}
+
+
+\subsection{Leave Message}
+
+If the clients issues a leave request for a node that has successfully joined the cluster, the node after receiving that requests issues a multicast message that notifies all the nodes in the cluster, registering in the logs that the node left the cluster. During this process there is no need to distribute the files, since our project has a daemon job that checks if there are 3 samples of a given key/value pair and if not issues a replication process, not being necessary to distribute the files upon leave request. 
+
+After the multicast leave message is issued, the node is not deleted, but instead the state is set to waiting for the client. And the thread responsible for listening to the multicast for that node is stopped. 
+
+
+\subsection{Membership Message}
+
+The membership messages are sent periodically by a scheduled task assigned to a thread in a thread-pool. The code for this can be found in the package \textbf{store.service.periodic}. 
+The membership message is also sent in response to a JOIN request.
+
+\subsection{Structure}
+
+We use CR-LF to divide the header of the messages from the rest of the body. This is used so that we can analyze the type of message being received by executing the same function (package: \textbf{requests}, class: \textbf{NetworkSerializable}, function: \textbf{getHeader}). This allows us to then use different handlers for each type of message/request.
+
+\begin{table}[h!]
+\begin{tabular}{|l|l|l}
+\cline{1-2}
+\begin{tabular}[c]{@{}l@{}}
+    JOIN\textbackslash{}r\textbackslash{}n\\ 
+    NodeID\textbackslash{}r\textbackslash{}n\\
+    PrivatePort\textbackslash{}r\textbackslash{}n\\
+    MembershipCounter\textbackslash{}r\textbackslash{}n\textbackslash{}r\textbackslash{}n\\\end{tabular}                                                                               & \begin{tabular}[c]{@{}l@{}}LEAVE\textbackslash{}r\textbackslash{}n\\     NodeID\textbackslash{}r\textbackslash{}n\\
+    MembershipCounter\textbackslash{}r\textbackslash{}n\textbackslash{}r\textbackslash{}n\\\end{tabular} &  \\ \cline{1-2}
+    
+    \begin{tabular}[c]{@{}l@{}}MEMBERSHIP\textbackslash{}r\textbackslash{}n\textbackslash{}r\textbackslash{}n\\ 
+    LOG\textbackslash{}r\textbackslash{}n\\ 
+    -log entries- \textbackslash{}r\textbackslash{}n\\ 
+    ACTIVE\textbackslash{}r\textbackslash{}n\\ 
+    -active nodes- \textbackslash{}r\textbackslash{}n\end{tabular} & \\ \cline{1-2}
+    
+\end{tabular}
+\end{table}
+
+\subsubsection{JOIN}
+
+The join message has no body structure. It contains, besides its identifier:
+
+\begin{itemize}
+    \item \textbf{NodeID:} id of the node to join
+    \item \textbf{PrivatePort:} port where the new node should receive the membership messages
+    \item \textbf{MembershipCounter:} the membership counter of the node joining
+\end{itemize}
+
+\subsubsection{LEAVE}
+
+The leave message has no body structure as well. Its contents are the same as the join message, lacking only the private port, as it does not need to receive a membership message.
+
+
+\subsubsection{MEMBERSHIP}
+
+The membership message header only contains its identifier. Its body is composed by two sections:
+\begin{itemize}
+    \item \textbf{LOG:} followed by the 32 last occurrences in the log 
+    \item \textbf{ACTIVE NODES:} followed by the nodes that are active as perceived by the node sending the message
+\end{itemize}
+
+\subsection{RMI}
+
+The path to the RMI remote interface: \textbf{src/store/coms/client/rmi/MembershipProtocolRemote}
+

@@ -6,9 +6,9 @@ import java.util.Arrays;
 
 public abstract class NetworkSerializable {
 
-    public static final int MAX_HEADER_SIZE = 1024;
+    public static final int MAX_HEADER_SIZE = 512;
     public static final int MAX_BODY_CHUNK_SIZE = 4096;
-    protected final String endOfLine = "\r\n";
+    protected static final String endOfLine = "\r\n";
 
     public static String[] getHeader(InputStream is) throws IOException {
         byte[] header = new byte[MAX_HEADER_SIZE];
