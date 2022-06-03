@@ -20,6 +20,10 @@ public class JoinMode extends RmiUtils implements Mode {
             Registry registry = LocateRegistry.getRegistry(this.getHost(), this.getNodeIdLastDigit());
             MembershipCommands commands = (MembershipCommands) registry.lookup(this.getRmiNodeIdentifier());
             System.out.println(commands.join());
+
+            /*Multicast Join Message*/
+
+
         } catch (Exception e) {
             System.out.println("Couldn't connect to remote");
         }

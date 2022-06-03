@@ -14,4 +14,6 @@ public final class RequestType {
     public static final String DELETE = "DELETE";
 
     public static final String SEEK = "SEEK";
+
+    public static final String LEAVE = "LEAVE";
 }
