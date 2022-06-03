@@ -8,6 +8,7 @@ import store.service.JoinServiceThread;
 import store.service.LeaveMessageSender;
 import store.service.MembershipServiceThread;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 
 public class MembershipProtocolRemote implements MembershipCommands {
@@ -89,6 +90,11 @@ public class MembershipProtocolRemote implements MembershipCommands {
         joinProtocol();
 
         /* After join protocol was successfully executed */
+        try {
+            nodeState.getMembershipLogger().updateCounter();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         nodeState.changeNodeState(State.JOINED);
 
         /* Start actively listening from multicast after joining */
@@ -111,6 +117,12 @@ public class MembershipProtocolRemote implements MembershipCommands {
 
         System.out.println("Node status WAITING_FOR_CLIENT");
         nodeState.changeNodeState(State.WAITING_FOR_CLIENT);
+
+        try {
+            nodeState.getMembershipLogger().updateCounter();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
 
         return "Membership Protocol for multicast leave RMI";

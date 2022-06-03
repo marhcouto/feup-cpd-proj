@@ -56,22 +56,14 @@ public class MembershipLogger extends NodeFileHandler {
     }
 
     public List<Neighbour> getLog() {
-        return log;
+        int size = log.size();
+        return log.subList(size - 32, size);
     }
 
     public void updateCounter() throws IOException {
         Path path = Paths.get(nodeFsRoot + MembershipFiles.MEMBERSHIP_COUNTER);
         this.membershipCounter++;
         Files.writeString(path, Integer.valueOf(++membershipCounter).toString());
-    }
-
-    public void storeLog(Neighbour neighbour) throws IOException {
-        Path path = Paths.get(nodeFsRoot + MembershipFiles.MEMBERSHIP_LOG);
-        if (!Files.isRegularFile(path)) {
-            Files.createFile(path);
-        }
-        Files.writeString(path, String.format("%s\n", neighbour.toFile()), StandardOpenOption.APPEND);
-        log.add(neighbour);
     }
 
     public void updateLogFile() throws IOException {
@@ -87,7 +79,7 @@ public class MembershipLogger extends NodeFileHandler {
 
     private void addEventLog(Neighbour neighbour) {
         for (Neighbour n : log) {
-            if (n.equals(neighbour)) {
+            if (n.equals(neighbour) && Integer.parseInt(n.getMembershipCounter()) < Integer.parseInt(neighbour.getMembershipCounter())) {
                 log.remove(n);
                 log.add(neighbour);
                 return;
