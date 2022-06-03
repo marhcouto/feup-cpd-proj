@@ -1,0 +1,23 @@
+\section{Concurrency}
+
+In order to increase the efficiency of our system, we implemented some features related to concurrency, enabling nodes to perform multiple tasks in parallel.
+
+Java offers many different ways of obtaining concurrency in a program. Even within Threads, multiple different mechanisms are available, allowing the programmer to choose between the ones suiting the situation the best. In our system, we use more than one of these tools.
+
+\subsection{Thread-Pools}
+
+\subsubsection{Why?}
+
+Parallel execution allows programs to perform multiple tasks at the same time, having the potential to increase the program's performance greatly. Although threads can be phenomenal, they are hard to manage and can bring various problems when it comes to resource management. Thread creation and destruction is a heavy operation, consuming many resources. For short lived threads, the thread's creation and destruction alone can be more resource and time consuming than the tasks it will carry out.
+
+Java thread-pools allow us to assign parallel tasks to different threads, while letting us control the number of threads and their life cycle in a simplistic manner. However, the main advantage of using thread-pools in comparison to regular Java threads lies in resource management and thread creation. Thread-pools reuse previously terminated system-threads to execute new tasks, reducing the overhead from thread creation and deletion and thus improving the system's performance and safety. 
+
+\subsubsection{How?}
+
+We used thread-pools in our project to assign to different threads each request coming from the sockets. In \textbf{store.service}, both \textbf{StoreServiceThread} and \textbf{MembershipServiceThread} classes have a thread-pool as a property. These classes are responsible for listening to the multicast and server sockets. When a request is received, the thread-pool is used to assign a new task to a thread. This task will be of the class \textbf{DispatchMulticastMessage}, in the package \textbf{store.handlers.membership} for multicast or \textbf{DispatchStoreRequest}, in the package \textbf{store.handlers.store}. The objects from these classes will decifer the request's header and dispatch the rest of it to the proper handler. In sum, we use thread-pools to assign a task representing the handling of a received request to a different thread.
+
+We also use thread-pools to assign to thread certain tasks that need to be repeated with a certain step, such as the membership message broadcast. The code for this section is in package \textbf{store.service.periodic}.
+
+\subsection{Normal Threads}
+
+Our program also uses normal java threads in some situations where the thread's lifetime is longer. Both \textbf{StoreServiceThread} and \textbf{MembershipServiceThread} class implement a java thread. These services are responsible to handle the requests coming from the store port and multicast port respectively. As such, they will be alive as long as the node is in the cluster.

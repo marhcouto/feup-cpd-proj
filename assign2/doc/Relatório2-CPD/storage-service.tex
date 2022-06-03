@@ -1,0 +1,55 @@
+\section{Storage Service}
+
+Our storage service consists of four request types: GET, PUT, DELETE, SEEK. As said in the handout the client is only able to send GET, PUT and DELETE requests.Regarding message format we used the message format that was recomended in appendix A.
+
+\subsection{Anatomy of Storage Service messages}
+\subsubsection{Requests}
+\begin{table}[h!]
+\begin{tabular}{|l|l|l}
+\cline{1-2}
+\begin{tabular}[c]{@{}l@{}}GET\textbackslash{}r\textbackslash{}n\\ Key\textbackslash{}r\textbackslash{}n\\
+Replicate(Boolean: must be replicated)\textbackslash{}r\textbackslash{}n\\
+\textbackslash{}r\textbackslash{}n\end{tabular}                                                                               & \begin{tabular}[c]{@{}l@{}}PUT\textbackslash{}r\textbackslash{}n\\ Key\textbackslash{}r\textbackslash{}n\\ ValueSize(in bytes)\textbackslash{}r\textbackslash{}n\\ Replicate(Boolean: must be replicated)\textbackslash{}r\textbackslash{}n\\ \textbackslash{}r\textbackslash{}n\\ ValueBody\end{tabular} &  \\ \cline{1-2}
+\begin{tabular}[c]{@{}l@{}}DELETE\textbackslash{}r\textbackslash{}n\\ Key\textbackslash{}r\textbackslash{}n\\ Replicate(Boolean: must be replicated)\textbackslash{}r\textbackslash{}n\\ \textbackslash{}r\textbackslash{}n\end{tabular} & \begin{tabular}[c]{@{}l@{}}SEEK\textbackslash{}r\textbackslash{}n\\ Key\textbackslash{}r\textbackslash{}n\\ \textbackslash{}r\textbackslash{}n\end{tabular}                                                                                                                                             &  \\ \cline{1-2}
+\end{tabular}
+\end{table}
+
+The need for sending the key is obvious for all the requests but the need for the replicate flag and file size in the case of PUT might not be obvious. We use the value size to determine how many bytes should we read from the message body because we didn’t want to implement a complicated character escaping algorithm because it wasn’t the focus of the project and because we have done it before. The need for the replicate flag will be explained late in the replication section. The implementstion details can be seen at \textbf{src/requests/store} package. Each class in this package is a data class that represents a message
+
+\subsubsection{Responses}
+\begin{itemize}
+    \item[] \textbf{GET}
+    \begin{itemize}
+        \item ERROR: Key not found
+        \item Value
+    \end{itemize}
+    \item[] \textbf{PUT}
+    \begin{itemize}
+        \item SUCCESS: File stored
+        \item ERROR: Couldn't send the file
+        \item ERROR: This node doesn't handle this key
+    \end{itemize}
+    \item[] \textbf{DELETE}
+        \begin{itemize}
+            \item SUCCESS: File deleted
+            \item ERROR: Couldn't delete file
+        \end{itemize}
+    \item[] \textbf{SEEK}
+        \begin{itemize}
+            \item EXISTS
+            \item \begin{verbatim}NOT_FOUND\end{verbatim}
+        \end{itemize}
+\end{itemize}
+
+We used a text based message system because it was required by the handout and because it was easier to debug.
+
+\subsubsection{Message flow}
+All message flow will be described disconsidering replication. The implications of replication on this protocol will be discussed later. Because the protocol specified that the node id is the node ip, the nodes assume that they all use the same port to receive TCP requests. That port is the port that was specified in the Store command line arguments. The methods that apply the consistent hashing algorithm are located at \textbf{src/utils/algorithms/NeighbourhoodAlgorithms} and are called \textbf{findRequestDest} and \textbf{findHeir}. The code to handle requests can be found at the replication subsection because it needed to be greatly adapted to support replication
+\subsubsection{Store a pair}
+When a user wants to store a pair it sends a PUT request that was described above to the node specified in the command line arguments of the TestClient. Then by using membership information to know which nodes are available and the key we compute the node that is the destiny of the sent pair. If the pair belongs to the node the client contacted it is stored there. If it dosen't belong to the node the client contacted it will open a socket to the right node and send a similar PUT request to that node.
+
+\subsubsection{Get a value}
+When a user wants to retrieve a value it sends a GET request that was described above to the node specified in the command line arguments of the TestClient. If the file is available at the current node, send it. If by using the consistent hashing algorithm we find that the key belongs to another node in the cluster we send the GET request to that node and pipe the response into the client socket.
+
+\subsubsection{Delete a pair}
+When a user wants to delete a pair it sends a DELETE request that was described above to the node specified in the command line arguments of the TestClient. If the key is handled at the current node, delete it. If by using the consistent hashing algorithm we find that the key belongs to another node in the cluster we send the DELETE request to that node and pipe the response into the client socket.
