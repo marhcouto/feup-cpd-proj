@@ -57,7 +57,7 @@ public class MembershipLogger extends NodeFileHandler {
 
     public List<Neighbour> getLog() {
         int size = log.size();
-        return log.subList(size - 32, size);
+        return log.subList(Math.max(0, size - 32), size);
     }
 
     public void updateCounter() throws IOException {

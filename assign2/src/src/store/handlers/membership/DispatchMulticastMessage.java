@@ -49,6 +49,7 @@ public class DispatchMulticastMessage implements Runnable {
             handler.execute(headers, inputStream);
         } catch (IOException | InvalidByteArray e) {
             // TODO: get better exception handling
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
     }

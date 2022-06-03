@@ -40,8 +40,6 @@ public class MembershipProtocolRemote implements MembershipCommands {
 
         System.out.println("Entering join membership protocol");
 
-        // TODO: Method way to confusing needs refactor, asap but only when all things are leveled out
-
         /*Open TCP port on the joining node, to accept membership messages from the other nodes*/
         JoinServiceThread joinServiceThread = new JoinServiceThread(nodeState);
 

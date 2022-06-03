@@ -46,7 +46,9 @@ public class JoinRequestHandler extends MulticastMessageHandler {
         /*Socket is now opened*/
         /* Needs to send membership message through the TCP port */
         this.getNodeState().getMembershipLogger().addEventLog(new Neighbour(nodeAp, nodeCounter));
+        System.out.println("Gonna create membership message");
         MembershipMessage membershipMessage = new MembershipMessage(getNodeState().getMembershipLogger().getLog(), getNodeState().getMembershipLogger().getActiveNodes());
+        System.out.println("Created membership message");
         membershipMessage.send(joiningNodeOutputStream);
         socket.close();
     }

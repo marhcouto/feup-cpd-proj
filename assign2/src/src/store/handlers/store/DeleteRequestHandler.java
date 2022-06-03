@@ -45,8 +45,10 @@ public class DeleteRequestHandler extends StoreRequestHandler {
                 Path filePath = getNodeState().getStoreFiles().getFilePath(request.getKey());
                 Files.delete(filePath);
                 Path tombstonePath = Paths.get(filePath + "_DEL");
-                Files.createFile(tombstonePath);
-                Files.writeString(tombstonePath, Long.valueOf(System.currentTimeMillis()).toString(), StandardCharsets.US_ASCII);
+                if (!Files.exists(tombstonePath)) {
+                    Files.createFile(tombstonePath);
+                    Files.writeString(tombstonePath, Long.valueOf(System.currentTimeMillis()).toString(), StandardCharsets.US_ASCII);
+                }
             }
         } catch (FileNotFoundException e) { /* Nothing to do */}
         if (requestDest.equals(getNodeState().getNodeId())) {
