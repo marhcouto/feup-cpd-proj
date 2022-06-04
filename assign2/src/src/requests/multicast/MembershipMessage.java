@@ -18,15 +18,17 @@ public class MembershipMessage extends NetworkSerializable {
 
     private final List<Neighbour> logList;
     private final List<Neighbour> activeNodes;
+    private final String nodeId;
 
-    public MembershipMessage(List<Neighbour> logList, List<Neighbour> activeNodes) {
+    public MembershipMessage(List<Neighbour> logList, List<Neighbour> activeNodes, String nodeId) {
         this.logList = logList;
         this.activeNodes = activeNodes;
+        this.nodeId = nodeId;
     }
 
     @Override
     public void send(OutputStream outputStream) throws IOException {
-        String header = RequestType.MEMBERSHIP + endOfLine + endOfLine;
+        String header = RequestType.MEMBERSHIP + endOfLine + nodeId + endOfLine + endOfLine;
         outputStream.write(header.getBytes(StandardCharsets.US_ASCII));
         String section1 = "LOG" + endOfLine;
         outputStream.write(section1.getBytes(StandardCharsets.US_ASCII));
@@ -46,7 +48,7 @@ public class MembershipMessage extends NetworkSerializable {
     public String toString() {
         StringBuilder stringBuilder1 = new StringBuilder();
         StringBuilder stringBuilder2 = new StringBuilder();
-        String header = RequestType.MEMBERSHIP + endOfLine + endOfLine;
+        String header = RequestType.MEMBERSHIP + endOfLine + nodeId + endOfLine + endOfLine;
         String section1 = "LOG" + endOfLine;
         String section2 = "ACTIVE" + endOfLine;
         for (Neighbour n : this.logList)
@@ -60,7 +62,7 @@ public class MembershipMessage extends NetworkSerializable {
         List<Neighbour> neighbours = new ArrayList<>();
         try (Scanner scanner = new Scanner(inputStream)) {
             String logString = scanner.nextLine();
-            if (! logString.equals("LOG")) {
+            if (!logString.equals("LOG")) {
                 throw new InvalidByteArray("Unexpected byte sequence in Membership message");
             }
             while (true) {
@@ -69,7 +71,6 @@ public class MembershipMessage extends NetworkSerializable {
                 neighbours.add(Neighbour.fromString(entry));
             }
             nodeState.getMembershipLogger().updateLog(neighbours);
-            nodeState.getMembershipLogger().updateLogFile();
         } catch (InvalidByteArray e) {
             throw new RuntimeException(e);
         }

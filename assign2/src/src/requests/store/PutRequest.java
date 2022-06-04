@@ -64,7 +64,7 @@ public class PutRequest extends NetworkSerializable implements NetworkRequest {
         String key = headers[1];
         long fileSize = Long.parseLong(headers[2]);
         Boolean replicate = Boolean.parseBoolean(headers[3]);
-        String filePath = nodeState.getStoreFiles().saveFile(key, fileSize, fileStream);
+        String filePath = nodeState.getFileStorer().saveFile(key, fileSize, fileStream);
         return new PutRequest(key, filePath, replicate);
     }
 }

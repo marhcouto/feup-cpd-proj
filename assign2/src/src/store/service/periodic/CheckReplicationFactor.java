@@ -2,7 +2,9 @@ package store.service.periodic;
 
 import requests.store.PutRequest;
 import requests.store.SeekRequest;
+import store.multicast.MulticastMessageSender;
 import store.node.NodeState;
+import utils.NodeNotFoundException;
 import utils.algorithms.NeighbourhoodAlgorithms;
 
 import java.io.IOException;
@@ -33,7 +35,7 @@ public class CheckReplicationFactor extends PeriodicActor {
             socket.close();
             if (!hasFile) {
                 socket = new Socket(nodeId, nodeState.getTcpDataConnectionAddress().getPort());
-                PutRequest putRequest = new PutRequest(key, nodeState.getStoreFiles().getFilePath(key).toString(), false);
+                PutRequest putRequest = new PutRequest(key, nodeState.getFileStorer().getFilePath(key).toString(), false);
                 putRequest.send(socket.getOutputStream());
                 socket.close();
             }
@@ -42,9 +44,8 @@ public class CheckReplicationFactor extends PeriodicActor {
 
     @Override
     public void run() {
-        System.out.println("Check replication factor");
         try {
-            List<String> allKeys = new ArrayList<>(nodeState.getStoreFiles().getAllKeys());
+            List<String> allKeys = new ArrayList<>(nodeState.getFileStorer().getAllKeys());
             allKeys.removeIf(elem -> elem.equals("files"));
             if (allKeys.isEmpty()) {
                 return;
@@ -55,7 +56,7 @@ public class CheckReplicationFactor extends PeriodicActor {
                 try {
                     checkReplication(nodeId, allKeys);
                 } catch (IOException e) {
-                    //TODO: Maybe multicast membership to make other nodes aware that nodeId is down
+                    e.printStackTrace();
                 }
             }
         } catch (IOException e) {

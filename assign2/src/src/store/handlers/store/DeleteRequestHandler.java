@@ -1,7 +1,9 @@
 package store.handlers.store;
 
 import requests.store.DeleteRequest;
+import store.multicast.MulticastMessageSender;
 import store.node.NodeState;
+import utils.NodeNotFoundException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -12,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DeleteRequestHandler extends StoreRequestHandler {
@@ -23,7 +26,7 @@ public class DeleteRequestHandler extends StoreRequestHandler {
     }
 
     private void replicateRequest(DeleteRequest request) {
-        List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
+        List<String> allDest = new ArrayList<>(getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey()));
         allDest.removeIf(elem -> getNodeState().getNodeId().equals(elem));
         DeleteRequest nonReplicateRequest = new DeleteRequest(request, false);
         for (var nodeId: allDest) {
@@ -39,21 +42,26 @@ public class DeleteRequestHandler extends StoreRequestHandler {
     public void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
         DeleteRequest request = DeleteRequest.fromNetworkStream(headers);
         String requestDest = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
+        System.out.println("Received DELETE request of file with key " + headers[1]);
         try {
             List<String> allRepCandidates = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
             if (allRepCandidates.contains(getNodeState().getNodeId())) {
-                Path filePath = getNodeState().getStoreFiles().getFilePath(request.getKey());
+                Path filePath = getNodeState().getFileStorer().getFilePath(request.getKey());
                 Files.delete(filePath);
                 Path tombstonePath = Paths.get(filePath + "_DEL");
                 if (!Files.exists(tombstonePath)) {
                     Files.createFile(tombstonePath);
                     Files.writeString(tombstonePath, Long.valueOf(System.currentTimeMillis()).toString(), StandardCharsets.US_ASCII);
                 }
+                responseStream.write(SUCCESS_MESSAGE.getBytes(StandardCharsets.US_ASCII));
             }
-        } catch (FileNotFoundException e) { /* Nothing to do */}
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            responseStream.write(ERROR_DELETING_FILE.getBytes(StandardCharsets.US_ASCII));
+        }
         if (requestDest.equals(getNodeState().getNodeId())) {
             try {
-                Files.delete(getNodeState().getStoreFiles().getFilePath(request.getKey()));
+                Files.delete(getNodeState().getFileStorer().getFilePath(request.getKey()));
             } catch (FileNotFoundException e) { /* Nothing to do */}
             if (request.needToReplicate()) {
                 replicateRequest(request);
@@ -68,12 +76,7 @@ public class DeleteRequestHandler extends StoreRequestHandler {
                 request.send(rightDest.getOutputStream());
                 rightDest.getInputStream().transferTo(responseStream);
             } catch (IOException e) {
-                //TODO: Trigger membership changes
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ie) {
-                    return;
-                }
+                e.printStackTrace();
             }
         }
     }

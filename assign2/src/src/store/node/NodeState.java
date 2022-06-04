@@ -63,11 +63,6 @@ public class NodeState extends Node {
 
         return new NodeState(nodeId, mCastIpAddress, mCastPort, storePort);
     }
-
-    public synchronized State getState(){
-        return this.state;
-    }
-
     public synchronized void setState(State state) {
         this.state = state;
     }
@@ -76,7 +71,7 @@ public class NodeState extends Node {
         return tcpDataConnectionAddress;
     }
 
-    public FileStorer getStoreFiles() { return this.storeFiles; }
+    public FileStorer getFileStorer() { return this.storeFiles; }
 
     public InetAddress getmCastIpAddress() {
         return mCastIpAddress;
@@ -96,7 +91,7 @@ public class NodeState extends Node {
         return neighbours;
     }
 
-    public synchronized State getNodeStateSync(){
+    public synchronized State getState() {
         return this.state;
     }
 }

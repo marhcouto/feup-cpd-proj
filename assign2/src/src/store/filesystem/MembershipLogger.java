@@ -2,12 +2,12 @@ package store.filesystem;
 
 import store.node.Neighbour;
 import store.node.NodeState;
+import utils.NodeNotFoundException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -63,10 +63,12 @@ public class MembershipLogger extends NodeFileHandler {
     public void updateCounter() throws IOException {
         Path path = Paths.get(nodeFsRoot + MembershipFiles.MEMBERSHIP_COUNTER);
         this.membershipCounter++;
-        Files.writeString(path, Integer.valueOf(++membershipCounter).toString());
+        Files.writeString(path, Integer.valueOf(this.membershipCounter).toString());
+        this.addLogEvent(new Neighbour(nodeState.getNodeId(), ((Integer) this.membershipCounter).toString()));
+        this.updateLogFile();
     }
 
-    public void updateLogFile() throws IOException {
+    public synchronized void updateLogFile() throws IOException {
         StringBuilder stringBuilder = new StringBuilder();
         for (Neighbour n : log)
             stringBuilder.append(n.toString()).append("\n");
@@ -77,14 +79,10 @@ public class MembershipLogger extends NodeFileHandler {
         Files.writeString(path, stringBuilder);
     }
 
-    public void addEventLog(Neighbour neighbour) {
-        System.out.println("Ran Event Log");
+    public synchronized void addLogEvent(Neighbour neighbour) {
         for (Neighbour n : log) {
-            System.out.println("Node:" + n.toString());
             if (!n.equals(neighbour)) continue;
-            System.out.println("FOUND HIM");
             if (Integer.parseInt(n.getMembershipCounter()) < Integer.parseInt(neighbour.getMembershipCounter())) {
-                System.out.println("UPDATING");
                 log.remove(n);
                 log.add(neighbour);
             }
@@ -93,16 +91,23 @@ public class MembershipLogger extends NodeFileHandler {
         log.add(neighbour);
     }
 
-    public void updateLog(List<Neighbour> newLog) {
+    public synchronized void updateLog(List<Neighbour> newLog) {
         for (Neighbour n : newLog)
-            this.addEventLog(n);
+            this.addLogEvent(n);
     }
 
     public List<Neighbour> getActiveNodes() {
         List<Neighbour> activeNodes = new ArrayList<>();
         for (Neighbour n : log) {
-            if (Integer.parseInt(n.getMembershipCounter()) % 2 == 0 && !activeNodes.contains(n)) activeNodes.add(n);
+            if (Integer.parseInt(n.getMembershipCounter()) % 2 != 0 && !activeNodes.contains(n)) activeNodes.add(n);
         }
         return activeNodes;
+    }
+
+    public int getMembershipCounter(String nodeId) throws NodeNotFoundException {
+        for (Neighbour n : log) {
+            if (n.getNodeId().equals(nodeId)) return membershipCounter;
+        }
+        throw new NodeNotFoundException("Node '" + nodeId + "' not found in log");
     }
 }

@@ -16,6 +16,7 @@ public class Store {
         try {
             ServiceProvider provider = new ServiceProvider(NodeState.fromArguments(args));
             provider.setupConnectionService();
+            provider.setupDataService();
         } catch (InvalidArgumentsException invalidArgumentsException) {
             System.out.println(usage());
         } catch (AlreadyBoundException e) {

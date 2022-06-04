@@ -1,6 +1,5 @@
 package store.handlers.membership;
 
-import requests.multicast.LeaveMembershipMessage;
 import store.node.Neighbour;
 import store.node.NodeState;
 
@@ -15,9 +14,14 @@ public class LeaveRequestHandler extends MulticastMessageHandler{
 
     @Override
     public void execute(String[] headers, InputStream inputStream) throws IOException {
-        String nodeAp = headers[1];
+
+        String nodeId = headers[1];
         String memberShipCounter = headers[2];
 
-        this.getNodeState().getMembershipLogger().addEventLog(new Neighbour(nodeAp, memberShipCounter));
+        if (nodeId.equals(getNodeState().getNodeId())) return;
+
+        System.out.println("Received" + "multicast LEAVE message from node '" + nodeId + "'");
+
+        this.getNodeState().getMembershipLogger().addLogEvent(new Neighbour(nodeId, memberShipCounter));
     }
 }

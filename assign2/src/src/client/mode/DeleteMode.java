@@ -2,9 +2,11 @@ package client.mode;
 
 import requests.store.DeleteRequest;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class DeleteMode extends TcpMode {
     String key;
@@ -15,12 +17,22 @@ public class DeleteMode extends TcpMode {
 
     @Override
     public void execute() {
-        try (Socket socket = new Socket(getHost(), getPort())) {
-            OutputStream os = socket.getOutputStream();
-            InputStream is = socket.getInputStream();
+        Socket clientSocket = null;
+        try {
+            clientSocket = new Socket(getHost(), getPort());
+            OutputStream os = clientSocket.getOutputStream();
+            InputStream is = clientSocket.getInputStream();
             DeleteRequest request = new DeleteRequest(key);
             request.send(os);
             is.transferTo(System.out);
+        } catch (SocketException e) {
+            try {
+                assert clientSocket != null;
+                clientSocket.getInputStream().transferTo(System.out);
+                clientSocket.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

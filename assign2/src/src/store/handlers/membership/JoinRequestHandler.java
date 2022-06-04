@@ -1,9 +1,7 @@
 package store.handlers.membership;
 
 
-import requests.multicast.JoinMembershipMessage;
 import requests.multicast.MembershipMessage;
-import rmi.RMIConstants;
 import store.node.Neighbour;
 import store.node.NodeState;
 import store.node.State;
@@ -12,7 +10,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class JoinRequestHandler extends MulticastMessageHandler {
 
@@ -26,30 +23,26 @@ public class JoinRequestHandler extends MulticastMessageHandler {
         String privatePort = headers[2];
         String nodeCounter = headers[3];
 
-        System.out.println("RECEIVED JOIN");
-
-        if(nodeAp.equals(this.getNodeState().getNodeId())){
+        if (nodeAp.equals(this.getNodeState().getNodeId())) {
+            System.err.println("Join sent to the node itself");
             return;
         }
-        if(this.getNodeState().getNodeStateSync().equals(State.WAITING_FOR_CLIENT)){
-            //if the node is sleeping return /*This should be fixed in multicast join
+
+        if (this.getNodeState().getState().equals(State.WAITING_FOR_CLIENT)){
             System.out.println("Node shouldn't get multicast message");
-            //return;
+            return;
         }
 
-        System.out.println("Node with ID '" + this.getNodeState().getNodeId() + "' received" +
-                "multicast JOIN message from node '" + nodeAp + "'");
+        System.out.println("Received" + "multicast JOIN message from node '" + nodeAp + "'");
 
         Socket socket = new Socket(nodeAp, Integer.parseInt(privatePort));
-        OutputStream joiningNodeOutputStream = socket.getOutputStream();
+        OutputStream outputStream = socket.getOutputStream();
 
-        /*Socket is now opened*/
+        /*Socket is now open*/
         /* Needs to send membership message through the TCP port */
-        this.getNodeState().getMembershipLogger().addEventLog(new Neighbour(nodeAp, nodeCounter));
-        System.out.println("Gonna create membership message");
-        MembershipMessage membershipMessage = new MembershipMessage(getNodeState().getMembershipLogger().getLog(), getNodeState().getMembershipLogger().getActiveNodes());
-        System.out.println("Created membership message");
-        membershipMessage.send(joiningNodeOutputStream);
+        this.getNodeState().getMembershipLogger().addLogEvent(new Neighbour(nodeAp, nodeCounter));
+        MembershipMessage membershipMessage = new MembershipMessage(getNodeState().getMembershipLogger().getLog(), getNodeState().getMembershipLogger().getActiveNodes(), getNodeState().getNodeId());
+        membershipMessage.send(outputStream);
         socket.close();
     }
 }
