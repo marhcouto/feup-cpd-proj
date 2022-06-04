@@ -2,7 +2,6 @@ package store.service;
 
 import store.node.NodeState;
 import store.handlers.store.DispatchStoreRequest;
-import store.node.State;
 import store.service.periodic.CheckReplicationFactor;
 import store.service.periodic.PeriodicActor;
 import store.service.periodic.PeriodicDeleteTombstones;
@@ -18,18 +17,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-public class StoreServiceThread extends Thread {
-    ExecutorService requestDispatchers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
+public class StoreServiceThread extends ServiceThread {
     private ServerSocket serverSocket;
-    private final NodeState nodeState;
-    private List<PeriodicActor> periodicActors;
-
     private StoreServiceThread(NodeState nodeState, List<PeriodicActor> periodicActors) {
-        this.nodeState = nodeState;
-        this.periodicActors = periodicActors;
+        super(nodeState, periodicActors);
+        this.requestDispatchers = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 4);
     }
 
-    public static StoreServiceThread fromState(NodeState state) {
+    public static StoreServiceThread fromNode(NodeState state) {
         List<PeriodicActor> periodicActorList = List.of(
             new CheckReplicationFactor(state),
             new PeriodicDeleteTombstones(state)
@@ -38,34 +33,13 @@ public class StoreServiceThread extends Thread {
     }
 
     @Override
-    public synchronized void start() {
-        super.start();
-        periodicActors.forEach(PeriodicActor::schedule);
-    }
-
-    @Override
-    public void interrupt() {
-        super.interrupt();
-        requestDispatchers.shutdown();
-        try {
-            if(!requestDispatchers.awaitTermination(5, TimeUnit.SECONDS)) {
-                requestDispatchers.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            requestDispatchers.shutdownNow();
-        }
-        periodicActors.forEach(PeriodicActor::stopExecution);
-    }
-
-    @Override
     public void run() {
+        System.out.println("STORE-SERVICE: start, listening to port " + nodeState.getTcpDataConnectionAddress().getPort());
         try {
             serverSocket = new ServerSocket();
             serverSocket.bind(new InetSocketAddress(nodeState.getTcpDataConnectionAddress().getHostString(), nodeState.getTcpDataConnectionAddress().getPort()));
             while(!Thread.interrupted()) {
                 Socket socket = serverSocket.accept();
-                System.out.println(String.format("Received Request from: %s", socket.getRemoteSocketAddress().toString()));
                 switch (nodeState.getState()) {
                     case WAITING_FOR_CLIENT -> {
                         socket.getOutputStream().write("Please join first!".getBytes(StandardCharsets.US_ASCII));
@@ -76,12 +50,11 @@ public class StoreServiceThread extends Thread {
                         socket.close();
                     }
                     case LEAVING -> {
-                        socket.getOutputStream().write("The node is leaving you will have to join later".getBytes(StandardCharsets.US_ASCII));
+                        socket.getOutputStream().write("The node is leaving you will have to join later!".getBytes(StandardCharsets.US_ASCII));
                         socket.close();
                     }
                     default -> requestDispatchers.execute(new DispatchStoreRequest(nodeState, socket));
                 }
-                System.out.println(String.format("Handled Request from: %s", socket.getRemoteSocketAddress().toString()));
             }
             requestDispatchers.shutdown();
             requestDispatchers.awaitTermination(5, TimeUnit.SECONDS);

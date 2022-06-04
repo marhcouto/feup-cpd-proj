@@ -1,9 +1,13 @@
 package store.handlers.store;
 
 import requests.store.PutRequest;
+import store.multicast.MulticastMessageSender;
 import store.node.NodeState;
+import store.rmi.MembershipProtocolRemote;
+import utils.NodeNotFoundException;
 
 import java.io.*;
+import java.net.MulticastSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,8 +45,9 @@ public class PutRequestHandler extends StoreRequestHandler {
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientStream) throws IOException {
         PutRequest request = PutRequest.fromNetworkStream(getNodeState(), headers, clientStream);
+        System.out.println("Received PUT request of file with key " + headers[1]);
         String requestDest = getNeighbourhoodAlgorithms().findRequestDest(request.getKey());
-        if (getNodeState().getStoreFiles().hasTombstone(request.getKey())) {
+        if (getNodeState().getFileStorer().hasTombstone(request.getKey())) {
             responseStream.write(ERROR_REJ_FILE.getBytes(StandardCharsets.US_ASCII));
         }
         if (!request.needToReplicate()) {
@@ -69,12 +74,7 @@ public class PutRequestHandler extends StoreRequestHandler {
                 rightDest.getInputStream().transferTo(responseStream);
                 Files.delete(Paths.get(request.getFilePath()));
             } catch (IOException e) {
-                //TODO: Trigger membership changes
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ie) {
-                    return;
-                }
+                e.printStackTrace();
             }
         }
     }

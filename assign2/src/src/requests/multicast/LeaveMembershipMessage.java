@@ -12,10 +12,10 @@ import java.util.List;
 public class LeaveMembershipMessage extends NetworkSerializable {
 
     private final int nodeMembershipCounter;
-    private final String nodeAp;
+    private final String nodeId;
 
-    public LeaveMembershipMessage(String nodeAp, int nodeMembershipCounter) {
-        this.nodeAp = nodeAp;
+    public LeaveMembershipMessage(String nodeId, int nodeMembershipCounter) {
+        this.nodeId = nodeId;
         this.nodeMembershipCounter = nodeMembershipCounter;
     }
 
@@ -23,7 +23,7 @@ public class LeaveMembershipMessage extends NetworkSerializable {
     @Override
     public void send(OutputStream outputStream) throws IOException {
         String header = RequestType.LEAVE + endOfLine
-                + nodeAp + endOfLine
+                + nodeId + endOfLine
                 + nodeMembershipCounter + endOfLine
                 + endOfLine;
 
@@ -33,7 +33,7 @@ public class LeaveMembershipMessage extends NetworkSerializable {
     @Override
     public String toString() {
         return RequestType.LEAVE + endOfLine
-                + nodeAp + endOfLine
+                + nodeId + endOfLine
                 + nodeMembershipCounter + endOfLine
                 + endOfLine;
     }

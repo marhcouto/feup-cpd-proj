@@ -11,7 +11,8 @@ public class MembershipMessageHandler extends MulticastMessageHandler {
         super(nodeState);
     }
 
-    public void execute(String headers[], InputStream inputStream) throws IOException {
+    public void execute(String[] headers, InputStream inputStream) throws IOException {
+        if (headers.length > 1 && headers[1].equals(getNodeState().getNodeId())) return;
         MembershipMessage.processMessage(this.getNodeState(), inputStream);
     }
 }

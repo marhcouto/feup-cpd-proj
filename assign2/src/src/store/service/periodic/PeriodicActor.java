@@ -25,7 +25,6 @@ public abstract class PeriodicActor implements Runnable {
                 scheduler.shutdownNow();
             }
         } catch (InterruptedException e) {
-            e.printStackTrace();
             scheduler.shutdownNow();
         }
     }

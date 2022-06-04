@@ -41,6 +41,7 @@ public class DispatchStoreRequest implements Runnable {
         try {
             InputStream inputStream = clientSocket.getInputStream();
             String[] headers = NetworkSerializable.getHeader(inputStream);
+            assert headers != null;
             StoreRequestHandler requestHandler = getRequestHandler(headers[0]);
             requestHandler.execute(headers, clientSocket.getOutputStream(), inputStream);
         } catch (InvalidByteArray e) {

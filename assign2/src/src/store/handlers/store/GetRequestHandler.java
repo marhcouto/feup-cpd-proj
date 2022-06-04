@@ -1,7 +1,6 @@
 package store.handlers.store;
 
 import requests.store.GetRequest;
-import requests.store.SeekRequest;
 import store.node.NodeState;
 
 import java.io.FileNotFoundException;
@@ -22,10 +21,11 @@ public class GetRequestHandler extends StoreRequestHandler {
     @Override
     public void execute(String[] headers, OutputStream responseStream, InputStream clientData) throws IOException {
         GetRequest request = GetRequest.fromNetworkStream(headers);
+        System.out.println("Received GET request of file with key " + headers[1]);
         List<String> allDest = getNeighbourhoodAlgorithms().findReplicationNodes(request.getKey());
         if (allDest.contains(getNodeState().getNodeId())) {
             try {
-                Path filePath = getNodeState().getStoreFiles().getFilePath(request.getKey());
+                Path filePath = getNodeState().getFileStorer().getFilePath(request.getKey());
                 Files.copy(filePath, responseStream);
                 return;
             } catch (FileNotFoundException e) {

@@ -3,10 +3,9 @@ package store.service;
 import rmi.MembershipCommands;
 import rmi.RMIConstants;
 import store.node.NodeState;
-import store.coms.client.rmi.MembershipProtocolRemote;
-import store.service.periodic.LogUpdater;
+import store.rmi.MembershipProtocolRemote;
 import utils.RmiUtils;
-import java.io.IOException;
+
 import java.rmi.AlreadyBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -37,12 +36,12 @@ public class ServiceProvider extends RmiUtils {
     }
 
     public void setupDataService() {
-        storeServiceThread = StoreServiceThread.fromState(nodeState);
+        storeServiceThread = StoreServiceThread.fromNode(nodeState);
         storeServiceThread.start();
     }
 
     public void setupMembershipService() {
-        membershipServiceThread = MembershipServiceThread.fromState(nodeState);
+        membershipServiceThread = MembershipServiceThread.fromNode(nodeState);
         membershipServiceThread.start();
     }
 

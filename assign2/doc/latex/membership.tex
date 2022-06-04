@@ -14,7 +14,7 @@ The classes where the membership service is implemented are divided into:
 
 \subsection{Join Message} 
 
-Test client sends a join through RMI, the sever ackowlodges it and starts the join protocol.
+Test client sends a join through RMI, the sever acknowledges it and starts the join protocol.
 The join protocol can be splitted in two phases.
 \begin{itemize}
     \item The multicast message sent by the joining node
@@ -25,10 +25,10 @@ The join protocol can be splitted in two phases.
 \subsubsection{Multicast Join Message} 
 
 \begin{enumerate}
-    \item A join message is sent through the multicast address for a specific cluster. To avoid bottlenecks and to allow this multicast message was sent using a thread
-    \item Before sending the multicast Join message, a private port is opened in a different thread and afterwards the Join multicast message is issued. The other nodes in the cluster after receiving the multicast,  send through the node private port , a membership message containing the logs of the node
-    \item The thread listening to the cluster nodes responses, has a timeout protocol set and If at least 3 connections aren't established through the TCP private port, the protocol is executed again, until the maximum retry attempts are reached
-    \item The thread only listens to the port until three connections are established to avoid bottlenecks, or a timeout is reached.
+    \item A join message is sent through the multicast address for a specific cluster.
+    \item Before sending the multicast Join message, a private port is opened in a different thread and afterwards the Join multicast message is sent. The other nodes in the cluster after receiving the multicast,  send through the node's private port, a membership message containing the logs history of the sender node. This can be found at:  \textbf{store.rmi.MembershipProtocolRemote::join}
+    \item The thread listening to the cluster nodes responses, has a timeout protocol set and if at least 3 connections aren't established through the TCP private port, the protocol is executed again, until the maximum retry attempts are reached. \textbf{store.service.JoinServiceThread::run}
+    \item The thread only listens to the port until three connections are established, or a timeout is reached as specified.
     \begin{itemize}
         \item If after all the retries are performed no connections are established, the node assumes that he is alone in the cluster
         \item If only one/two connection is/are established, the node assumes that the cluster has one/two node(s) , starting the multicast and merging the logs information that are sent periodically to the multicast
@@ -39,9 +39,9 @@ The join protocol can be splitted in two phases.
 
 \subsection{Leave Message}
 
-If the clients issues a leave request for a node that has successfully joined the cluster, the node after receiving that requests issues a multicast message that notifies all the nodes in the cluster, registering in the logs that the node left the cluster. During this process there is no need to distribute the files, since our project has a daemon job that checks if there are 3 samples of a given key/value pair and if not issues a replication process, not being necessary to distribute the files upon leave request. 
+If the clients issues a leave request for a node that has successfully joined the cluster, the node after receiving that request issues a multicast message that notifies all the nodes in the cluster, that then register in their logs the counter of the node that left. During this process there is no need to distribute the files, since our project has a daemon job that checks if there are 3 samples of a given key/value pair and if not issues a replication process, not being necessary to distribute the files upon leave request. More details are provided in the replication section
 
-After the multicast leave message is issued, the node is not deleted, but instead the state is set to waiting for the client. And the thread responsible for listening to the multicast for that node is stopped. 
+After the multicast leave message is issued, the node is not deleted, but instead the state is set to waiting for the client. And the thread responsible for listening to the multicast for that node is stopped. This behaviour can be found at: \textbf{store.rmi.MembershipProtocolRemote::leave}
 
 
 \subsection{Membership Message}
@@ -97,5 +97,7 @@ The membership message header only contains its identifier. Its body is composed
 
 \subsection{RMI}
 
-The path to the RMI remote interface: \textbf{src/store/coms/client/rmi/MembershipProtocolRemote}
+The path to the RMI remote interface: \textbf{src/store/rmi/MembershipProtocolRemote}
 
+\subsection{Fault Tolerance}
+When a we try to contact a node and the contact fails we consider that it left. Because that node needs to perform JOIN again it will update it's membership view. This part is not implemented
